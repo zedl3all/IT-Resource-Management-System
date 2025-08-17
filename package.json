@@ -6,13 +6,27 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "zedl3all <https://github.com/zedl3all>",
+  "contributors": [
+    "zedl3all <https://github.com/zedl3all>",
+    "FirzKung <https://github.com/66070266>",
+    "Natokung <https://github.com/66070277Noppawit>"
+  ],
   "license": "ISC",
   "type": "commonjs",
-  "description": "",
+  "description": "ในปัจจุบันการบริหารจัดการทรัพยากรไอทีภายในคณะมักเผชิญกับปัญหาด้านประสิทธิภาพ ไม่ว่าจะเป็นความยุ่งยากในการตรวจสอบสถานะการใช้งาน การจองที่ซ้ำซ้อน และการติดตามการยืม-คืนอุปกรณ์ที่ขาดระบบจัดการที่ดี รวมถึงการแจ้งซ่อมบำรุงที่ไม่มีระบบติดตามสถานะที่ชัดเจน ซึ่งปัญหาเหล่านี้ล้วนส่งผลกระทบโดยตรงต่อกระบวนการเรียนการสอนและการทำงานโดยรวมของคณะ\r ดังนั้นคณะผู้จัดทำจึงเล็งเห็นถึงความสำคัญของปัญหาเหล่านี้ และได้คิดริเริ่มพัฒนา IT Resource Management System ซึ่งเป็น Web Application เพื่อเป็นศูนย์กลางในการบริหารจัดการทรัพยากรไอทีแบบครบวงจร ระบบนี้จะอำนวยความสะดวกให้ผู้ใช้งานสามารถ จองห้องเรียน และ ยืม-คืนอุปกรณ์ไอที ได้อย่างเป็นระบบ นอกจากนี้ยังรองรับการ แจ้งและติดตามสถานะงานซ่อมบำรุง อุปกรณ์ได้อย่างโปร่งใส ด้วย Node.js + Express + MySQL",
   "dependencies": {
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "mysql2": "^3.14.3"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zedl3all/IT-Resource-Management-System.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zedl3all/IT-Resource-Management-System/issues"
+  },
+  "homepage": "https://github.com/zedl3all/IT-Resource-Management-System#readme"
 }
