@@ -16,7 +16,7 @@ const UserController = {
         });
     },
     searchUsers: (req, res) => {
-        const keyword = req.query.q;
+        const { keyword } = req.params;
         User.searchByKeyword(keyword, (err, users) => {
             if (err) return res.status(500).json({ error: 'Internal server error' });
             res.status(200).json(users);

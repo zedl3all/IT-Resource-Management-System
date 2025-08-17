@@ -10,14 +10,14 @@ const User = {
         });
     },
     getById: (id, callback) => {
-        const query = 'SELECT * FROM users WHERE id = ? AND is_deleted = 0'
+        const query = 'SELECT * FROM users WHERE user_id = ? AND is_deleted = 0'
         db.query(query, [id], (err, results) => {
             if (err) return callback(err);
             callback(null, results[0]);
         });
     },
     searchByKeyword: (keyword, callback) => {
-        const query = 'SELECT * FROM users WHERE name LIKE ? AND is_deleted = 0'
+        const query = 'SELECT * FROM users WHERE username LIKE ? AND is_deleted = 0'
         db.query(query, [`%${keyword}%`], (err, results) => {
             if (err) return callback(err);
             callback(null, results);
