@@ -1,13 +1,19 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
+const path = require('path');
 
 // Middleware
 app.use(express.json());
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
 const userRoutes = require('./routes/UserRoute');
+const webRoutes = require('./routes/WebRoutes');
 
 // Routes
 app.use('/user', userRoutes);
+app.use('/', webRoutes);
 
 app.get('/', (req, res) => {
     res.send('Hello World!');

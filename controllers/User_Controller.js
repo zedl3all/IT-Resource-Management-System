@@ -50,6 +50,12 @@ const UserController = {
             if (err) return res.status(500).json({ error: 'Internal server error' });
             res.status(200).json({ message: 'User restored successfully' });
         });
+    },
+    getUserView: (req, res) => {
+        User.getAll((err, users) => {
+            if (err) return res.status(500).json({ error: 'Internal server error' });
+            res.render('test', { users }); // Assuming 'test' is the EJS template for displaying users
+        });
     }
 };
 
