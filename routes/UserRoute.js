@@ -5,5 +5,9 @@ const UserController = require('../controllers/User_Controller');
 router.get('/', UserController.getAllUsers);
 router.get('/:id', UserController.getUserById);
 router.get('/search/:keyword', UserController.searchUsers);
+router.post('/', UserController.createUser);
+router.put('/:id', UserController.updateUser);
+router.delete('/:id', UserController.softDeleteUser);
+router.post('/:id/restore', UserController.restoreUser);
 
 module.exports = router;

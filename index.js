@@ -2,9 +2,12 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
+// Middleware
+app.use(express.json());
 const userRoutes = require('./routes/UserRoute');
 
-app.use('/users', userRoutes);
+// Routes
+app.use('/user', userRoutes);
 
 app.get('/', (req, res) => {
     res.send('Hello World!');

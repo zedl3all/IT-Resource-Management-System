@@ -22,7 +22,36 @@ const User = {
             if (err) return callback(err);
             callback(null, results);
         });
+    },
+    create: (userData, callback) => {
+        const query = 'INSERT INTO users (username, role, password, created_at) VALUES (?, ?, ?, ?)'
+        const values = [userData.username, userData.role, userData.password, new Date()]
+        db.query(query, values, (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
+    update: (id, userData, callback) => {
+        const query = 'UPDATE users SET username = ?, role = ?, password = ? WHERE user_id = ? AND is_deleted = 0'
+        const values = [userData.username, userData.role, userData.password, id]
+        db.query(query, values, (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
+    soft_delete: (id, callback) => {
+        const query = 'UPDATE users SET is_deleted = 1 WHERE user_id = ?'
+        db.query(query, [id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
+    restore: (id, callback) => {
+        const query = 'UPDATE users SET is_deleted = 0 WHERE user_id = ?'
+        db.query(query, [id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
     }
-    // Add more CRUD operations as needed
 }
 module.exports = User;
