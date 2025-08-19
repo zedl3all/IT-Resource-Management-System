@@ -28,7 +28,7 @@ const User = {
         const values = [uuidv4(), userData.username, userData.role, userData.password, new Date()]
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
-            callback(null, results);
+            callback(null, results.insertId, ...userData);
         });
     },
     update: (id, userData, callback) => {
