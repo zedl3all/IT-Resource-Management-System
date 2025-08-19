@@ -51,6 +51,7 @@ const UserController = {
             res.status(200).json({ message: 'User restored successfully' });
         });
     },
+    // Render user view
     getUserView: (req, res) => {
         User.getAll((err, users) => {
             if (err) return res.status(500).json({ error: 'Internal server error' });
