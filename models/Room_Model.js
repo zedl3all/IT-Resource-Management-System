@@ -29,7 +29,7 @@ const Room = {
         const values = [uuidv4(), roomData.name, roomData.description, roomData.capacity];
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
-            callback(null, results.insertId);
+            callback(null, results.insertId, ...roomData);
         });
     },
     update: (id, roomData, callback) => {
