@@ -9,10 +9,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 const userRoutes = require('./routes/UserRoute');
+const roomRoutes = require('./routes/RoomRoute');
 const webRoutes = require('./routes/WebRoutes');
 
 // Routes
 app.use('/user', userRoutes);
+app.use('/room', roomRoutes);
 app.use('/', webRoutes);
 
 app.get('/', (req, res) => {
