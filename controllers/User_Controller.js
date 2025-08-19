@@ -7,7 +7,7 @@ const UserController = {
                 error: 'Internal server error',
                 details: err.message
             });
-            res.status(200).json(users);
+            res.status(200).json({ users });
         });
     },
     getUserById: (req, res) => {

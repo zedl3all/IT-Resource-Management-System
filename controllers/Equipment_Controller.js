@@ -7,7 +7,7 @@ const EquipmentController = {
                 error: 'Internal server error',
                 details: err.message
             });
-            res.json({ equipment: results });
+            res.status(200).json({ results });
         });
     },
     getEquipmentById: (req, res) => {

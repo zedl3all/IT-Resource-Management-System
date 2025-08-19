@@ -7,7 +7,7 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
-            res.json(rooms);
+            res.status(200).json({ rooms });
         });
     },
     getRoomById: (req, res) => {
