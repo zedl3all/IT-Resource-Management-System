@@ -24,8 +24,8 @@ const User = {
         });
     },
     create: (userData, callback) => {
-        const query = 'INSERT INTO users (username, role, password, created_at) VALUES (?, ?, ?, ?)'
-        const values = [userData.username, userData.role, userData.password, new Date()]
+        const query = 'INSERT INTO users (user_id, username, role, password, created_at) VALUES (?, ?, ?, ?, ?)'
+        const values = [uuidv4(), userData.username, userData.role, userData.password, new Date()]
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
             callback(null, results);
