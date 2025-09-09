@@ -26,10 +26,10 @@ const Room = {
     // Add more CRUD operations as needed
     create: (roomData, callback) => {
         const query = 'INSERT INTO rooms (room_id, room_name, description, capacity) VALUES (?, ?, ?, ?)';
-        const values = [uuidv4(), roomData.name, roomData.description, roomData.capacity];
+        const values = [roomData.name, roomData.description, roomData.capacity];
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
-            callback(null, results.insertId, ...roomData);
+            callback(null, roomData);
         });
     },
     update: (id, roomData, callback) => {

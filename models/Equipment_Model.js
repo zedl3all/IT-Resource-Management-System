@@ -26,10 +26,10 @@ const Equipment = {
     // Add more CRUD operations as needed
     create: (data, callback) => {
         const query = 'INSERT INTO equipment (e_id, name, status) VALUES (?, ?, ?)'
-        const values = [uuidv4(), data.name, data.status]
+        const values = [data.name, data.status]
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
-            callback(null, { id: results.insertId, ...data });
+            callback(null, { data });
         });
     },
     update: (id, data, callback) => {
