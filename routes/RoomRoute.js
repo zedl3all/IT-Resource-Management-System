@@ -4,7 +4,7 @@ const RoomController = require('../controllers/Room_Controller');
 
 router.get('/', RoomController.getAllRooms);
 router.get('/:id', RoomController.getRoomById);
-router.get('/search', RoomController.searchRooms);
+router.get('/search/:keyword', RoomController.searchRooms);
 router.post('/', RoomController.createRoom);
 router.put('/:id', RoomController.updateRoom);
 router.delete('/:id', RoomController.softDeleteRoom);
