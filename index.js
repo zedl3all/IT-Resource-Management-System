@@ -12,6 +12,10 @@ const userRoutes = require('./routes/UserRoute');
 const roomRoutes = require('./routes/RoomRoute');
 const webRoutes = require('./routes/WebRoutes');
 const equipmentRoutes = require('./routes/EquipmentRoute');
+const AuthRoute = require('./routes/AuthRoute');
+
+// Auth Routes
+app.use('/auth', AuthRoute);
 
 // Routes
 app.use('/user', userRoutes);
