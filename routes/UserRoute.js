@@ -10,4 +10,7 @@ router.put('/:id', UserController.updateUser);
 router.delete('/:id', UserController.softDeleteUser);
 router.post('/:id/restore', UserController.restoreUser);
 
+router.get('/findByEmail/:email', UserController.findByEmail); // New route to find user by email
+router.get('/findByUsername/:username', UserController.findByUsername); // New route to find user by username
+
 module.exports = router;

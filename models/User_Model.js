@@ -24,11 +24,11 @@ const User = {
         });
     },
     create: (userData, callback) => {
-        const query = 'INSERT INTO users (user_id, username, role, password, email, created_at) VALUES (?, ?, ?, ?, ?, ?)'
-        const values = [uuidv4(), userData.username, userData.role, userData.password, userData.email, new Date()]
+        const query = 'INSERT INTO users (fullname, username, role, password, email, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+        const values = [userData.fullname, userData.username, userData.role, userData.password, userData.email, new Date()]
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
-            callback(null, results.insertId, ...userData);
+            callback(null, userData);
         });
     },
     update: (id, userData, callback) => {
@@ -60,6 +60,13 @@ const User = {
             if (err) return callback(err);
             callback(null, results[0]);
         });
+    },
+    findByUsername: (username, callback) => {
+        const query = 'SELECT * FROM users WHERE username = ? AND is_deleted = 0'
+        db.query(query, [username], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results[0]);
+        });
     }
-}
+};
 module.exports = User;

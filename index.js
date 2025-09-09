@@ -18,17 +18,13 @@ const AuthRoute = require('./routes/AuthRoute');
 app.use('/auth', AuthRoute);
 
 // Routes
-app.use('/user', userRoutes);
-app.use('/room', roomRoutes);
-app.use('/equipment', equipmentRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/room', roomRoutes);
+app.use('/api/equipment', equipmentRoutes);
 app.use('/', webRoutes);
 
 // CSS
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

@@ -93,6 +93,34 @@ const UserController = {
             });
             res.render('test', { users }); // Assuming 'test' is the EJS template for displaying users
         });
+    },
+    findByEmail: (req, res) => {
+        const email = req.params.email;
+        User.findByEmail(email, (err, user) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            if (!user) return res.status(404).json({
+                error: 'User not found',
+                details: `No user found with email ${email}`
+            });
+            res.status(200).json(user);
+        });
+    },
+    findByUsername: (req, res) => {
+        const username = req.params.username;
+        User.findByUsername(username, (err, user) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            if (!user) return res.status(404).json({
+                error: 'User not found',
+                details: `No user found with username ${username}`
+            });
+            res.status(200).json(user);
+        });
     }
 };
 
