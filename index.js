@@ -23,6 +23,9 @@ app.use('/room', roomRoutes);
 app.use('/equipment', equipmentRoutes);
 app.use('/', webRoutes);
 
+// CSS
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
