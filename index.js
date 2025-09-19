@@ -20,9 +20,9 @@ const AuthRoute = require('./routes/AuthRoute');
 app.use('/auth', AuthRoute);
 
 // Routes
-app.use('/api/user', userRoutes);
-app.use('/api/room', roomRoutes);
-app.use('/api/equipment', equipmentRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/rooms', roomRoutes);
+app.use('/api/equipments', equipmentRoutes);
 app.use('/', webRoutes);
 
 // CSS
