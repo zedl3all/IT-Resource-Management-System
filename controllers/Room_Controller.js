@@ -83,6 +83,27 @@ const RoomController = {
                 details: results
             });
         });
+    },
+    getBookingsByRoomId: (req, res) => {
+        const roomId = req.params.id;
+        Room.getBookingsByRoomId(roomId, (err, bookings) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.json(bookings);
+        });
+    },
+    getBookingsByRoomIdAndMonth: (req, res) => {
+        const roomId = req.params.id;
+        const month = req.query.month;
+        Room.getBookingsByRoomIdAndMonth(roomId, month, (err, bookings) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.json(bookings);
+        });
     }
 }
 

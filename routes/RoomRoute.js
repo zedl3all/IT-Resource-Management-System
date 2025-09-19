@@ -9,5 +9,7 @@ router.post('/', RoomController.createRoom);
 router.put('/:id', RoomController.updateRoom);
 router.delete('/:id', RoomController.softDeleteRoom);
 router.post('/:id/restore', RoomController.restoreRoom);
+router.get('/:id/bookings/month', RoomController.getBookingsByRoomIdAndMonth);
+router.get('/:id/bookings', RoomController.getBookingsByRoomId);
 
 module.exports = router;

@@ -53,6 +53,25 @@ const Room = {
             if (err) return callback(err);
             callback(null, results);
         });
+    },
+    getBookingsByRoomId: (id, callback) => {
+        const query = 'SELECT start_time, end_time, users.username, purpose FROM booking JOIN users ON booking.user_id = users.user_id WHERE room_id = ?';
+        db.query(query, [id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
+    getBookingsByRoomIdAndMonth: (id, month, callback) => {
+        const query = `
+        SELECT start_time, end_time, users.username, purpose
+        FROM booking
+        JOIN users ON booking.user_id = users.user_id
+        WHERE room_id = ? AND DATE_FORMAT(start_time, '%Y-%m') = ?
+        `;
+        db.query(query, [id, month], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
     }
 }
 module.exports = Room;

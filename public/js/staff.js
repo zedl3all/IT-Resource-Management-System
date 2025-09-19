@@ -585,34 +585,57 @@ document.addEventListener('DOMContentLoaded', function () {
     // !Load initial data
     loadRooms();
 
-    // ฟังก์ชันสำหรับดึงข้อมูลการจองห้อง
+    // *ฟังก์ชันสำหรับดึงข้อมูลการจองห้อง
     function fetchRoomBookings(roomId, month = null) {
         // ในกรณีมีการเลือกเดือน จะส่งเดือนไปด้วย
-        const queryParams = month ? `?month=${month}` : '';
+        const queryParams = month ? `/month/?month=${month}` : '';
 
         // แสดง loading indicator
         const bookingsContainer = document.getElementById('bookings-container');
         bookingsContainer.innerHTML = '<div class="loading-spinner">กำลังโหลดข้อมูล...</div>';
+        
+        // เพิ่ม element no-bookings ทุกครั้งที่โหลดข้อมูลใหม่
+        const noBookingsMsg = document.createElement('div');
+        noBookingsMsg.id = 'no-bookings';
+        noBookingsMsg.className = 'no-bookings';
+        noBookingsMsg.style.textAlign = 'center';
+        noBookingsMsg.style.padding = '20px';
+        noBookingsMsg.style.display = 'none';
+        noBookingsMsg.textContent = 'ไม่พบข้อมูลการจองในช่วงเวลาที่เลือก';
+        bookingsContainer.appendChild(noBookingsMsg);
+
+        console.log(`/api/rooms/${roomId}/bookings${queryParams}`);
 
         // เรียกข้อมูลจาก API
         fetch(`/api/rooms/${roomId}/bookings${queryParams}`)
             .then(response => response.json())
             .then(data => {
+                console.log('Room bookings data:', data);
                 // เคลียร์ container
                 bookingsContainer.innerHTML = '';
+                
+                // เพิ่ม element no-bookings อีกครั้งหลังจาก clear container
+                const noBookingsMsg = document.createElement('div');
+                noBookingsMsg.id = 'no-bookings';
+                noBookingsMsg.className = 'no-bookings';
+                noBookingsMsg.style.textAlign = 'center';
+                noBookingsMsg.style.padding = '20px';
+                noBookingsMsg.style.display = 'none';
+                noBookingsMsg.textContent = 'ไม่พบข้อมูลการจองในช่วงเวลาที่เลือก';
+                bookingsContainer.appendChild(noBookingsMsg);
 
-                const noBookingsEl = document.getElementById('no-bookings');
-
-                // ตรวจสอบว่ามีข้อมูลการจองหรือไม่
-                if (!data.bookings || data.bookings.length === 0) {
-                    noBookingsEl.style.display = 'block';
+                // ตรวจสอบว่ามีข้อมูลการจองหรือไม่ และข้อมูลมีโครงสร้างแบบไหน
+                const bookings = Array.isArray(data) ? data : (data.bookings || []);
+                
+                if (bookings.length === 0) {
+                    document.getElementById('no-bookings').style.display = 'block';
                     return;
                 }
 
-                noBookingsEl.style.display = 'none';
+                document.getElementById('no-bookings').style.display = 'none';
 
                 // เรียงลำดับตามวันที่และเวลา
-                data.bookings.sort((a, b) => {
+                bookings.sort((a, b) => {
                     const dateA = new Date(a.booking_date);
                     const dateB = new Date(b.booking_date);
                     return dateA - dateB;
@@ -621,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // จัดกลุ่มตามวันที่
                 const bookingsByDate = {};
 
-                data.bookings.forEach(booking => {
+                bookings.forEach(booking => {
                     const date = new Date(booking.booking_date).toLocaleDateString('th-TH', {
                         year: 'numeric',
                         month: 'long',
@@ -678,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
                             <div class="booking-user">
                                 <i class="fas fa-user"></i>
-                                <span>${booking.user_name} ${booking.department ? `(${booking.department})` : ''}</span>
+                                <span>${booking.username} ${booking.department ? `(${booking.department})` : ''}</span>
                             </div>
                             <div class="booking-purpose">
                                 <i class="fas fa-clipboard"></i>
@@ -693,7 +716,10 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(error => {
                 console.error('Error fetching room bookings:', error);
-                bookingsContainer.innerHTML = '<div class="error-message">ไม่สามารถโหลดข้อมูลการจองได้</div>';
+                bookingsContainer.innerHTML = `
+                    <div class="error-message">ไม่สามารถโหลดข้อมูลการจองได้</div>
+                    <div id="no-bookings" style="display:none;"></div>
+                `;
             });
     }
 
