@@ -851,6 +851,46 @@ input:focus, select:focus, textarea:focus {
     padding-bottom: 10px;
 }
 
+/* Booking filter styles */
+.booking-filter {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+.booking-filter .form-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.booking-filter label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.booking-filter input[type="month"] {
+    flex: 1;
+}
+
+.booking-filter button {
+    padding: 8px 12px;
+    height: auto;
+    width: auto;
+}
+
+/* Loading, error, and no bookings messages */
+.loading-spinner, .error-message, .no-bookings {
+    padding: 20px;
+    text-align: center;
+    color: #777;
+}
+
+.error-message {
+    color: var(--danger-color);
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }

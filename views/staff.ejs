@@ -96,7 +96,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- * EXAMPLE * -->
+                            <!-- * ROOM EXAMPLE * -->
                             <!-- <tr>
                                 <td>R001</td>
                                 <td>ห้องประชุมใหญ่</td>
@@ -154,7 +154,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- * EXAMPLE * -->
+                            <!-- * EQUIPMENT EXAMPLE * -->
                             <!-- <tr>
                                 <td>I001</td>
                                 <td>โน้ตบุ๊ก Dell XPS 15</td>
@@ -216,7 +216,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- * EXAMPLE * -->
+                            <!-- * REPAIR EXAMPLE * -->
                             <!-- <tr>
                                 <td>REP001</td>
                                 <td>iPad Pro 12.9" (I003)</td>
@@ -255,14 +255,8 @@
                     <input type="text" id="room-name" name="room-name" required>
                 </div>
                 <div class="form-group">
-                    <label for="room-type">ประเภทห้อง</label>
-                    <select id="room-type" name="room-type" required>
-                        <option value="">-- เลือกประเภทห้อง --</option>
-                        <option value="meeting">ห้องประชุม</option>
-                        <option value="training">ห้องอบรม</option>
-                        <option value="lab">ห้องปฏิบัติการ</option>
-                        <option value="office">ห้องทำงาน</option>
-                    </select>
+                    <label for="room-description">รายละเอียด</label>
+                    <input type="text" id="room-description" name="room-description" required>
                 </div>
                 <div class="form-group">
                     <label for="room-capacity">ความจุ (คน)</label>
@@ -275,10 +269,6 @@
                         <option value="booked">จองแล้ว</option>
                         <option value="maintenance">ปิดปรับปรุง</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label for="room-description">รายละเอียดเพิ่มเติม</label>
-                    <textarea id="room-description" name="room-description" rows="3"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancel">ยกเลิก</button>
@@ -476,61 +466,29 @@
     <div class="modal" id="room-booking-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>รายละเอียดการจอง</h2>
+                <h2>รายละเอียดการจองห้อง</h2>
                 <span class="close">&times;</span>
             </div>
             <div class="booking-details">
                 <div class="room-info">
-                    <h3 id="booking-room-name">ห้องประชุมเล็ก (R002)</h3>
-                    <p id="booking-room-type">ประเภท: ห้องประชุม</p>
+                    <h3 id="booking-room-name">ห้องประชุมใหญ่ (R001)</h3>
+                    <p id="booking-room-description">รายละเอียด: ห้องประชุมขนาดใหญ่</p>
+                    <p id="booking-room-capacity">ความจุ: 30 คน</p>
                 </div>
                 
                 <div class="bookings-list">
                     <h4>ตารางการจอง</h4>
-                    <div class="booking-calendar">
-                        <!-- Calendar will be inserted here -->
-                    </div>
-                    <div class="bookings-container">
-                        <div class="booking-item">
-                            <div class="booking-header">
-                                <div class="booking-date">วันนี้</div>
-                                <span class="booking-status current">กำลังใช้งาน</span>
-                            </div>
-                            <div class="booking-body">
-                                <div class="booking-time">
-                                    <i class="fas fa-clock"></i>
-                                    <span>9:00 - 12:00 น.</span>
-                                </div>
-                                <div class="booking-user">
-                                    <i class="fas fa-user"></i>
-                                    <span>สมชาย ใจดี (แผนกการตลาด)</span>
-                                </div>
-                                <div class="booking-purpose">
-                                    <i class="fas fa-clipboard"></i>
-                                    <span>ประชุมแผนการตลาดไตรมาส 3</span>
-                                </div>
-                            </div>
+                    <div class="booking-filter">
+                        <div class="form-group">
+                            <label for="booking-month">ดูการจองในเดือน:</label>
+                            <input type="month" id="booking-month" name="booking-month">
+                            <button id="filter-bookings" class="btn-view">ค้นหา</button>
                         </div>
-                        
-                        <div class="booking-item">
-                            <div class="booking-header">
-                                <div class="booking-date">วันนี้</div>
-                                <span class="booking-status upcoming">รอใช้งาน</span>
-                            </div>
-                            <div class="booking-body">
-                                <div class="booking-time">
-                                    <i class="fas fa-clock"></i>
-                                    <span>13:00 - 15:00 น.</span>
-                                </div>
-                                <div class="booking-user">
-                                    <i class="fas fa-user"></i>
-                                    <span>วิชัย มานะ (แผนกบัญชี)</span>
-                                </div>
-                                <div class="booking-purpose">
-                                    <i class="fas fa-clipboard"></i>
-                                    <span>ประชุมสรุปงบประมาณ</span>
-                                </div>
-                            </div>
+                    </div>
+                    <div id="bookings-container" class="bookings-container">
+                        <!-- จะใส่ข้อมูลการจองที่นี่ด้วย JavaScript -->
+                        <div class="no-bookings" id="no-bookings" style="text-align:center; padding:20px; display:none;">
+                            ไม่พบข้อมูลการจองในช่วงเวลาที่เลือก
                         </div>
                     </div>
                 </div>
