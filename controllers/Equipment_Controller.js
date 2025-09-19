@@ -2,12 +2,12 @@ const Equipment = require('../models/equipment_Model');
 
 const EquipmentController = {
     getAllEquipment: (req, res) => {
-        Equipment.getAll((err, results) => {
+        Equipment.getAll((err, equipments) => {
             if (err) return res.status(500).json({
                 error: 'Internal server error',
                 details: err.message
             });
-            res.status(200).json({ results });
+            res.status(200).json({ equipments });
         });
     },
     getEquipmentById: (req, res) => {
