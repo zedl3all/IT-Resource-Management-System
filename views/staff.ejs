@@ -9,7 +9,6 @@
 </head>
 <body>
     <div class="dashboard">
-        <% console.log(data); %>
         <!-- Sidebar -->
         <div class="sidebar">
             <div class="logo">
@@ -67,17 +66,17 @@
 
                 <div class="cards-container">
                     <div class="stat-card">
-                        <div class="stat-value">12</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">ห้องทั้งหมด</div>
                         <i class="fas fa-door-open stat-icon"></i>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">8</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">ห้องที่ว่าง</div>
                         <i class="fas fa-check-circle stat-icon"></i>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">4</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">ห้องที่ถูกจอง</div>
                         <i class="fas fa-calendar-check stat-icon"></i>
                     </div>
@@ -90,14 +89,15 @@
                             <tr>
                                 <th>รหัสห้อง</th>
                                 <th>ชื่อห้อง</th>
-                                <th>ประเภท</th>
+                                <th>รายละเอียด</th>
                                 <th>ความจุ</th>
                                 <th>สถานะ</th>
                                 <th>จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <!-- * EXAMPLE * -->
+                            <!-- <tr>
                                 <td>R001</td>
                                 <td>ห้องประชุมใหญ่</td>
                                 <td>ห้องประชุม</td>
@@ -108,30 +108,7 @@
                                     <button class="btn-edit"><i class="fas fa-edit"></i></button>
                                     <button class="btn-delete"><i class="fas fa-trash"></i></button>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>R002</td>
-                                <td>ห้องประชุมเล็ก</td>
-                                <td>ห้องประชุม</td>
-                                <td>10 คน</td>
-                                <td><span class="status booked">จองแล้ว</span></td>
-                                <td class="actions">
-                                    <button class="btn-view-room"><i class="fas fa-calendar"></i></button>
-                                    <button class="btn-edit"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>R003</td>
-                                <td>ห้องอบรมคอมพิวเตอร์</td>
-                                <td>ห้องอบรม</td>
-                                <td>20 คน</td>
-                                <td><span class="status available">ว่าง</span></td>
-                                <td class="actions">
-                                    <button class="btn-edit"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>
@@ -148,17 +125,17 @@
 
                 <div class="cards-container">
                     <div class="stat-card">
-                        <div class="stat-value">35</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">อุปกรณ์ทั้งหมด</div>
                         <i class="fas fa-laptop stat-icon"></i>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">28</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">อุปกรณ์ที่ว่าง</div>
                         <i class="fas fa-check-circle stat-icon"></i>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">7</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">อุปกรณ์ที่ถูกจอง</div>
                         <i class="fas fa-calendar-check stat-icon"></i>
                     </div>
@@ -177,7 +154,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <!-- * EXAMPLE * -->
+                            <!-- <tr>
                                 <td>I001</td>
                                 <td>โน้ตบุ๊ก Dell XPS 15</td>
                                 <td>คอมพิวเตอร์</td>
@@ -188,31 +166,8 @@
                                     <button class="btn-view"><i class="fas fa-eye"></i></button>
                                     <button class="btn-delete"><i class="fas fa-trash"></i></button>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>I002</td>
-                                <td>โปรเจคเตอร์ Epson</td>
-                                <td>อุปกรณ์นำเสนอ</td>
-                                <td><span class="status booked">จองแล้ว</span></td>
-                                <td>20/01/2023</td>
-                                <td class="actions">
-                                    <button class="btn-edit"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-view"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>I003</td>
-                                <td>iPad Pro 12.9"</td>
-                                <td>แท็บเล็ต</td>
-                                <td><span class="status maintenance">ซ่อมบำรุง</span></td>
-                                <td>05/03/2023</td>
-                                <td class="actions">
-                                    <button class="btn-edit"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-view"><i class="fas fa-eye"></i></button>
-                                    <button class="btn-delete"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                            </tr> -->
+                            
                         </tbody>
                     </table>
                 </div>
@@ -229,17 +184,17 @@
 
                 <div class="cards-container">
                     <div class="stat-card">
-                        <div class="stat-value">5</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">รายการทั้งหมด</div>
                         <i class="fas fa-tools stat-icon"></i>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">2</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">รอดำเนินการ</div>
                         <i class="fas fa-clock stat-icon"></i>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-value">3</div>
+                        <div class="stat-value">0</div>
                         <div class="stat-label">กำลังดำเนินการ</div>
                         <i class="fas fa-spinner stat-icon"></i>
                     </div>
@@ -261,7 +216,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <!-- * EXAMPLE * -->
+                            <!-- <tr>
                                 <td>REP001</td>
                                 <td>iPad Pro 12.9" (I003)</td>
                                 <td>หน้าจอแตก</td>
@@ -273,20 +229,7 @@
                                     <button class="btn-edit"><i class="fas fa-edit"></i></button>
                                     <button class="btn-images" data-images="repair1-1.jpg,repair1-2.jpg"><i class="fas fa-images"></i></button>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>REP002</td>
-                                <td>โน้ตบุ๊ก HP Spectre (I005)</td>
-                                <td>แบตเตอรี่เสื่อม</td>
-                                <td>แผนกบัญชี</td>
-                                <td>-</td>
-                                <td>20/07/2023</td>
-                                <td><span class="status pending">รอดำเนินการ</span></td>
-                                <td class="actions">
-                                    <button class="btn-edit"><i class="fas fa-edit"></i></button>
-                                    <button class="btn-images" data-images="repair2-1.jpg"><i class="fas fa-images"></i></button>
-                                </td>
-                            </tr>
+                            </tr> -->
                         </tbody>
                     </table>
                 </div>
@@ -294,6 +237,7 @@
         </div>
     </div>
 
+    <!-- TODO: Implement Room Modal -->
     <!-- Room Modal -->
     <div class="modal" id="room-modal">
         <div class="modal-content">
