@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     row.innerHTML = `
-                    <td>${item.equipment_id || item.id}</td>
+                    <td>${item.equipment_id || item.e_id}</td>
                     <td>${item.equipment_name || item.name}</td>
                     <td>${item.type || item.description}</td>
                     <td><span class="status ${statusClass}">${statusText}</span></td>

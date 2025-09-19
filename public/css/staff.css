@@ -95,6 +95,7 @@ body {
     margin-top: auto;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     color: #e74c3c;
+    cursor: pointer;
 }
 
 .menu-item.logout:hover {
