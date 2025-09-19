@@ -15,6 +15,7 @@ const roomRoutes = require('./routes/RoomRoute');
 const webRoutes = require('./routes/WebRoutes');
 const equipmentRoutes = require('./routes/EquipmentRoute');
 const AuthRoute = require('./routes/AuthRoute');
+const maintenanceRoute = require('./routes/MaintenanceRoute')
 
 // Auth Routes
 app.use('/auth', AuthRoute);
@@ -23,6 +24,7 @@ app.use('/auth', AuthRoute);
 app.use('/api/user', userRoutes);
 app.use('/api/room', roomRoutes);
 app.use('/api/equipment', equipmentRoutes);
+app.use('/api/maintenance', maintenanceRoute)
 app.use('/', webRoutes);
 
 // CSS
