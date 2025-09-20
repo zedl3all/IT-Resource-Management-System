@@ -273,14 +273,22 @@ document.addEventListener('DOMContentLoaded', function () {
     function openModal(type, data = null) {
         const modal = modals[type];
         const form = document.getElementById(`${type}-form`);
-
+        
         // Reset form
         form.reset();
-
+        
+        // Set edit mode flag - initialize as false (new item)
+        form.setAttribute('data-edit-mode', 'false');
+        
         // If we have data (for edit), populate form fields
         if (data) {
+            // Set edit mode flag to true
+            form.setAttribute('data-edit-mode', 'true');
+
+            document.getElementById(`${type}-modal-title`).textContent = `แก้ไขข้อมูล${type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม'}`;
+
+            
             // Populate form fields based on data object
-            // This would be customized based on your data structure
             for (const key in data) {
                 const input = form.querySelector(`#${type}-${key}`);
                 if (input) {
@@ -288,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         }
-
+        
         // Show modal
         modal.style.display = 'block';
     }
@@ -315,92 +323,87 @@ document.addEventListener('DOMContentLoaded', function () {
         saveData('repair', forms.repair);
     });
 
+    // *Save data function (with update capability)
     function saveData(type, form) {
         // Get form data
         const formData = new FormData(form);
         const data = {};
-
+        
         for (const [key, value] of formData.entries()) {
             data[key.split('-')[1]] = value;
         }
-
-        // In a real application, you would send this data to your server
-        // For this example, we'll just log it and close the modal
-        console.log(`Saving ${type} data:`, data);
-
-        // TODO: Add API call to save data
-        if (type === 'room') {
-            // Call API to save room data
-            fetch('/api/rooms', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            }).then(response => response.json())
-                .then(result => {
-                    console.log('Success:', result);
-                    loadRooms(); // Refresh room list
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        } else if (type === 'item') {
-            // Call API to save item data
-            fetch('/api/equipments', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            }).then(response => response.json())
-                .then(result => {
-                    console.log('Success:', result);
-                    loadEquipments(); // Refresh equipment list
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        } else if (type === 'repair') {
-            // Call API to save repair data
-            fetch('/api/maintenances', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            }).then(response => response.json())
-                .then(result => {
-                    console.log('Success:', result);
-                    loadMaintenances(); // Refresh maintenance list
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+        
+        // Check if we're in edit mode
+        const isEditMode = form.getAttribute('data-edit-mode') === 'true';
+        const id = data.id;
+        
+        console.log(`${isEditMode ? 'Updating' : 'Creating new'} ${type} data:`, data);
+        
+        // Determine API endpoint and HTTP method based on edit mode
+        let endpoint, method;
+        
+        if (isEditMode) {
+            if (type === 'room') {
+                endpoint = `/api/rooms/${id}`;
+                method = 'PUT';
+            } else if (type === 'item') {
+                endpoint = `/api/equipments/${id}`;
+                method = 'PUT';
+            } else if (type === 'repair') {
+                endpoint = `/api/repairs/${id}`;
+                method = 'PUT';
+            }
+        } else {
+            if (type === 'room') {
+                endpoint = '/api/rooms';
+                method = 'POST';
+            } else if (type === 'item') {
+                endpoint = '/api/equipments';
+                method = 'POST';
+            } else if (type === 'repair') {
+                endpoint = '/api/repairs';
+                method = 'POST';
+            }
         }
-        // Example:
-        // fetch(`/api/${type}s`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(data),
-        // })
-        // .then(response => response.json())
-        // .then(result => {
-        //     console.log('Success:', result);
-        //     modals[type].style.display = 'none';
-        //     // Refresh data or update UI
-        // })
-        // .catch(error => {
-        //     console.error('Error:', error);
-        // });
-
-        // Close modal
-        modals[type].style.display = 'none';
-
-        // Show success message
-        alert(`บันทึกข้อมูล${type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม'}สำเร็จ`);
+        
+        // Make API call
+        fetch(endpoint, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log('Success:', result);
+            
+            // Refresh data list based on type
+            if (type === 'room') {
+                loadRooms();
+            } else if (type === 'item') {
+                loadEquipments();
+            } else if (type === 'repair') {
+                loadMaintenance();
+            }
+            
+            // Close modal
+            modals[type].style.display = 'none';
+            
+            // Show success message
+            const action = isEditMode ? 'อัพเดท' : 'บันทึก';
+            const typeText = type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม';
+            alert(`${action}ข้อมูล${typeText}สำเร็จ`);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`เกิดข้อผิดพลาด! ไม่สามารถ${isEditMode ? 'อัพเดท' : 'บันทึก'}ข้อมูลได้`);
+        });
     }
 
     // ใช้ event delegation สำหรับปุ่มทั้งหมด
@@ -449,12 +452,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const cells = row.querySelectorAll('td');
 
             if (type === 'rooms') {
+                console.log(data);
                 data.id = cells[0].textContent;
                 data.name = cells[1].textContent;
                 data.description = cells[2].textContent;
                 data.capacity = cells[3].textContent.replace(' คน', '');
-                data.status = cells[4].querySelector('.status').classList.contains('available') ? 'available' :
-                    cells[4].querySelector('.status').classList.contains('booked') ? 'booked' : 'maintenance';
+                if (cells[4].querySelector('.status').classList.contains('available')) {
+                    data.status = "1";
+                } else if (cells[4].querySelector('.status').classList.contains('booked')) {
+                    data.status = "0";
+                } else {
+                    data.status = "-1"; // maintenance
+                }
             } else if (type === 'items') {
                 data.id = cells[0].textContent;
                 data.name = cells[1].textContent;
@@ -482,14 +491,38 @@ document.addEventListener('DOMContentLoaded', function () {
             const button = e.target.closest('.btn-delete');
             const row = button.closest('tr');
             const id = row.querySelector('td:first-child').textContent;
-            const type = button.closest('table').id.split('-')[0]; // rooms or items
-
+            let type = button.closest('table').id.split('-')[0]; // rooms or items
+            if (type === 'items') {
+                type = 'equipments'; // Adjust for API endpoint
+            }
+            console.log(`Attempting to delete ${type} with ID: ${id}`);
             if (confirm(`คุณแน่ใจหรือไม่ที่จะลบ${type === 'rooms' ? 'ห้อง' : 'อุปกรณ์'} ${id}?`)) {
                 // TODO: Add API call to delete data
-                console.log(`Deleting ${type} with ID: ${id}`);
-
-                // Remove row from table (in a real app, do this after successful API call)
-                row.remove();
+                fetch(`/api/${type}/${id}`, {
+                    method: 'DELETE',
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('Deleted successfully:', result);
+                    console.log(`Deleting ${type} with ID: ${id}`);
+                })
+                .catch(error => {
+                    console.error('Error deleting:', error);
+                });
+                // Refresh data list based on type
+                if (type === 'rooms') {
+                    loadRooms();
+                } else if (type === 'items') {
+                    loadEquipments();
+                } else if (type === 'repairs') {
+                    loadMaintenance();
+                }
+                alert('ลบข้อมูลสำเร็จ');
             }
         }
 
