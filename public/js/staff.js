@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuItems = document.querySelectorAll('.menu-item');
     const sections = document.querySelectorAll('.section');
 
+    // * Handle menu item clicks
     menuItems.forEach(item => {
         item.addEventListener('click', function (e) {
             if (this.classList.contains('logout')) return;
@@ -320,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = {};
 
         for (const [key, value] of formData.entries()) {
-            data[key] = value;
+            data[key.split('-')[1]] = value;
         }
 
         // In a real application, you would send this data to your server
@@ -328,6 +329,55 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log(`Saving ${type} data:`, data);
 
         // TODO: Add API call to save data
+        if (type === 'room') {
+            // Call API to save room data
+            fetch('/api/rooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    loadRooms(); // Refresh room list
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } else if (type === 'item') {
+            // Call API to save item data
+            fetch('/api/equipments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    loadEquipments(); // Refresh equipment list
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } else if (type === 'repair') {
+            // Call API to save repair data
+            fetch('/api/maintenances', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    loadMaintenances(); // Refresh maintenance list
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
         // Example:
         // fetch(`/api/${type}s`, {
         //     method: 'POST',
@@ -593,7 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // แสดง loading indicator
         const bookingsContainer = document.getElementById('bookings-container');
         bookingsContainer.innerHTML = '<div class="loading-spinner">กำลังโหลดข้อมูล...</div>';
-        
+
         // เพิ่ม element no-bookings ทุกครั้งที่โหลดข้อมูลใหม่
         const noBookingsMsg = document.createElement('div');
         noBookingsMsg.id = 'no-bookings';
@@ -613,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('Room bookings data:', data);
                 // เคลียร์ container
                 bookingsContainer.innerHTML = '';
-                
+
                 // เพิ่ม element no-bookings อีกครั้งหลังจาก clear container
                 const noBookingsMsg = document.createElement('div');
                 noBookingsMsg.id = 'no-bookings';
@@ -626,7 +676,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // ตรวจสอบว่ามีข้อมูลการจองหรือไม่ และข้อมูลมีโครงสร้างแบบไหน
                 const bookings = Array.isArray(data) ? data : (data.bookings || []);
-                
+
                 if (bookings.length === 0) {
                     document.getElementById('no-bookings').style.display = 'block';
                     return;

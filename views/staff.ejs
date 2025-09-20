@@ -55,7 +55,7 @@
                 </div>
             </header>
 
-            <!-- Room Management Section -->
+            <!-- *Room Management Section* -->
             <section id="rooms" class="section active">
                 <div class="section-header">
                     <h1>จัดการห้องสำหรับจอง</h1>
@@ -248,7 +248,7 @@
             <form id="room-form">
                 <div class="form-group">
                     <label for="room-id">รหัสห้อง</label>
-                    <input type="text" id="room-id" name="room-id" required>
+                    <input type="text" id="room-id" name="room-id" placeholder="สามารถเว้นว่างไว้เพื่อให้ระบบสร้างรหัสอัตโนมัติ" >
                 </div>
                 <div class="form-group">
                     <label for="room-name">ชื่อห้อง</label>
@@ -265,9 +265,9 @@
                 <div class="form-group">
                     <label for="room-status">สถานะ</label>
                     <select id="room-status" name="room-status" required>
-                        <option value="available">ว่าง</option>
-                        <option value="booked">จองแล้ว</option>
-                        <option value="maintenance">ปิดปรับปรุง</option>
+                        <option value="1">ว่าง</option>
+                        <option value="0">จองแล้ว</option>
+                        <option value="-1">ปิดปรับปรุง</option>
                     </select>
                 </div>
                 <div class="form-actions">

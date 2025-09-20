@@ -25,16 +25,20 @@ const Room = {
     },
     // Add more CRUD operations as needed
     create: (roomData, callback) => {
-        const query = 'INSERT INTO rooms (room_id, room_name, description, capacity) VALUES (?, ?, ?, ?)';
-        const values = [roomData.name, roomData.description, roomData.capacity];
+        if (!roomData.id) {
+            // random only numbers user uuidv4 and take only numbers
+            roomData.id = uuidv4().replace(/[^0-9]/g, '').slice(0, 8);
+        }
+        const query = 'INSERT INTO rooms (room_id, room_name, description, capacity, status) VALUES (?, ?, ?, ?, ?)';
+        const values = [roomData.id, roomData.name, roomData.description, roomData.capacity, roomData.status];
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
             callback(null, roomData);
         });
     },
     update: (id, roomData, callback) => {
-        const query = 'UPDATE rooms SET room_name = ?, description = ?, capacity = ? WHERE room_id = ? AND is_deleted = 0';
-        const values = [roomData.name, roomData.description, roomData.capacity, id];
+        const query = 'UPDATE rooms SET room_name = ?, description = ?, capacity = ?, status = ? WHERE room_id = ? AND is_deleted = 0';
+        const values = [roomData.name, roomData.description, roomData.capacity, roomData.status, id];
         db.query(query, values, (err, results) => {
             if (err) return callback(err);
             callback(null, results);

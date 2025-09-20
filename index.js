@@ -21,10 +21,11 @@ const maintenanceRoute = require('./routes/MaintenanceRoute')
 app.use('/auth', AuthRoute);
 
 // Routes
+// !Do not change the paths below, they should be plural
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/equipments', equipmentRoutes);
-app.use('/api/maintenances', maintenanceRoute)
+app.use('/api/maintenances', maintenanceRoute);
 app.use('/', webRoutes);
 
 // CSS
