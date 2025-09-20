@@ -162,17 +162,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // *load maintenance data
     function loadMaintenance() {
-        fetch('/api/repairs')
+        fetch('/api/maintenances')
             .then(response => response.json())
             .then(data => {
                 console.log(data);
                 const repairsTableBody = document.querySelector('#repairs-table tbody');
                 repairsTableBody.innerHTML = '';
 
-                // ตรวจสอบว่า data มีโครงสร้างอย่างไร
-                const repairs = data.repairs || data;
-
-                repairs.forEach(repair => {
+                data.Maintenances.forEach(repair => {
                     const row = document.createElement('tr');
 
                     // กำหนดสถานะการซ่อม
@@ -189,21 +186,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
 
                     // กำหนดเจ้าหน้าที่ผู้รับผิดชอบ
-                    const staffName = repair.staff_name || repair.staff || '-';
+                    const staffName = repair.staff_username || '-';
 
                     // กำหนดรูปภาพ (ถ้ามี)
-                    const images = repair.images ? repair.images.join(',') : '';
+                    const images = repair.image ? repair.image : '';
+
+                    const date = repair.DT_report || repair.date || '';
+                    //format date to DD/MM/YYYY
+                    const formattedDate = date ? new Date(date).toLocaleDateString('th-TH') : '';
 
                     row.innerHTML = `
-                    <td>${repair.repair_id || repair.id}</td>
-                    <td>${repair.equipment_name || repair.item}</td>
-                    <td>${repair.issue || repair.description}</td>
+                    <td>${repair.request_id}</td>
+                    <td>${repair.equipment}</td>
+                    <td>${repair.problem_description}</td>
                     <td>${repair.location || '-'}</td>
                     <td>${staffName}</td>
-                    <td>${repair.report_date || repair.date}</td>
+                    <td>${formattedDate}</td>
                     <td><span class="status ${statusClass}">${statusText}</span></td>
                     <td class="actions">
-                        <button class="btn-edit" data-repair-id="${repair.repair_id || repair.id}"><i class="fas fa-edit"></i></button>
+                        <button class="btn-edit" data-repair-id="${repair.request_id}"><i class="fas fa-edit"></i></button>
                         ${images ? `<button class="btn-images" data-images="${images}"><i class="fas fa-images"></i></button>` : ''}
                     </td>
                 `;
@@ -211,18 +212,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
 
                 // อัพเดทการ์ดสถิติ
-                updateRepairStats(repairs);
+                updateRepairStats(data.Maintenances);
             })
             .catch(error => console.error('Error loading repairs:', error));
     }
 
     // *update repair stats
     function updateRepairStats(repairs) {
+        // pending = 0, in-progress = -1 , completed = 1
         const stats = {
             total: repairs.length,
-            pending: repairs.filter(repair => repair.status === 'pending').length,
-            inProgress: repairs.filter(repair => repair.status === 'in-progress').length,
-            completed: repairs.filter(repair => repair.status === 'completed').length
+            pending: repairs.filter(repair => repair.status === 0).length,
+            inProgress: repairs.filter(repair => repair.status === -1).length,
+            completed: repairs.filter(repair => repair.status === 1).length
         };
 
         const statCards = document.querySelectorAll('#repairs .stat-card .stat-value');
@@ -285,8 +287,11 @@ document.addEventListener('DOMContentLoaded', function () {
             // Set edit mode flag to true
             form.setAttribute('data-edit-mode', 'true');
 
-            document.getElementById(`${type}-modal-title`).textContent = `แก้ไขข้อมูล${type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม'}`;
-
+            // Update modal title if the element exists
+            const modalTitle = document.getElementById(`${type}-modal-title`);
+            if (modalTitle) {
+                modalTitle.textContent = `แก้ไขข้อมูล${type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม'}`;
+            }
             
             // Populate form fields based on data object
             for (const key in data) {
@@ -496,8 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 type = 'equipments'; // Adjust for API endpoint
             }
             console.log(`Attempting to delete ${type} with ID: ${id}`);
-            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบ${type === 'rooms' ? 'ห้อง' : 'อุปกรณ์'} ${id}?`)) {
-                // TODO: Add API call to delete data
+            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบ${type === 'rooms' ? 'ห้อง' : 'อุปกรณ์'} ID: ${id}?`)) {
                 fetch(`/api/${type}/${id}`, {
                     method: 'DELETE',
                 })
@@ -548,8 +552,24 @@ document.addEventListener('DOMContentLoaded', function () {
         // * 5. จัดการปุ่มดูรูปภาพ
         else if (e.target.closest('.btn-images')) {
             const button = e.target.closest('.btn-images');
-            const imageList = button.getAttribute('data-images').split(',');
-            const images = imageList.map(img => `/images/${img.trim()}`);
+            const imagesAttr = button.getAttribute('data-images');
+            
+            // Check if the data-images attribute exists and is not empty
+            if (!imagesAttr) {
+                alert('ไม่พบรูปภาพสำหรับรายการนี้');
+                return;
+            }
+            
+            const imageList = imagesAttr.split(',').filter(img => img.trim());
+            
+            // Validate that we have images to show
+            if (imageList.length === 0) {
+                alert('ไม่พบรูปภาพสำหรับรายการนี้');
+                return;
+            }
+            
+            // Create proper API paths for the images
+            images = imageList.map(img => `/api/images?path=${img.trim().replace(/^\.\/Images\//, '')}`);
             const imageThumbnails = document.getElementById('image-thumbnails');
 
             // Clear existing thumbnails
@@ -602,12 +622,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Navigation functions for image viewer
     function setCurrentImage(index) {
-        // ใช้โค้ดเดิม
+        // Check if images array exists and has elements
+        if (!images || images.length === 0) {
+            console.error('No images available to display');
+            return;
+        }
+        
+        // Handle edge cases for index
         if (index < 0) index = images.length - 1;
         if (index >= images.length) index = 0;
 
         currentImageIndex = index;
-        mainImage.src = images[index];
+        
+        // Make sure we have a valid image URL
+        const imageUrl = images[index] || '';
+        if (!imageUrl) {
+            console.error('Invalid image URL at index:', index);
+            return;
+        }
+        
+        mainImage.src = imageUrl;
         imageCounter.textContent = `${index + 1}/${images.length}`;
 
         // Update active thumbnail

@@ -803,10 +803,19 @@ input:focus, select:focus, textarea:focus {
     font-weight: 600;
 }
 
-/* Button for images */
+/* Button for images circle */
 .btn-images {
     background-color: rgba(243, 156, 18, 0.1);
     color: #f39c12;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .btn-images:hover {
