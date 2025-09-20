@@ -1,3 +1,11 @@
+// TODO: Implement Create Equipment
+// TODO: Implement Update Equipment
+// TODO: Implement Delete Equipment
+// TODO: Implement View Loan Equipment
+
+// TODO: Implement EDIT Maintenance Request
+// TODO: Implement REMOVE CREATE MAINTENANCE REQUEST FOR STAFF
+
 document.addEventListener('DOMContentLoaded', function () {
     // Tab switching functionality
     const menuItems = document.querySelectorAll('.menu-item');
@@ -105,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 itemsTableBody.innerHTML = '';
 
                 // ตรวจสอบว่า data มีโครงสร้างอย่างไร
-                const equipments = data.equipments || data;
+                const equipments = data.equipments;
 
                 equipments.forEach(item => {
                     const row = document.createElement('tr');
@@ -126,9 +134,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.innerHTML = `
                     <td>${item.equipment_id || item.e_id}</td>
                     <td>${item.equipment_name || item.name}</td>
-                    <td>${item.type || item.description}</td>
+                    <td>${item.type_name || item.description}</td>
                     <td><span class="status ${statusClass}">${statusText}</span></td>
-                    <td>${item.purchase_date || '15/06/2022'}</td>
                     <td class="actions">
                         <button class="btn-edit" data-item-id="${item.equipment_id || item.id}"><i class="fas fa-edit"></i></button>
                         <button class="btn-view" data-item-id="${item.equipment_id || item.id}"><i class="fas fa-eye"></i></button>
@@ -272,6 +279,69 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // *Load equipment types from API
+    function loadEquipmentTypes() {
+        return fetch('/api/equipment-types')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Equipment types loaded:', data);
+                populateEquipmentTypeCheckboxes(data);
+                return data;
+            })
+            .catch(error => {
+                console.error('Error loading equipment types:', error);
+                // Fallback to default types in case of API error
+                const defaultTypes = [
+                    { id: 1, name: 'คอมพิวเตอร์' },
+                    { id: 2, name: 'โน้ตบุ๊ก' },
+                    { id: 3, name: 'โปรเจคเตอร์' },
+                    { id: 4, name: 'อุปกรณ์เสียง' }
+                ];
+                populateEquipmentTypeCheckboxes(defaultTypes);
+                return defaultTypes;
+            });
+    }
+
+    // Generate equipment type checkboxes dynamically
+    function populateEquipmentTypeCheckboxes(types) {
+        // Use the correct ID for the checkbox container
+        const checkboxGroup = document.getElementById('item-types-container');
+        if (!checkboxGroup) {
+            console.error('Checkbox group container not found');
+            return;
+        }
+
+        // Clear existing checkboxes
+        checkboxGroup.innerHTML = '';
+
+        // Add new checkboxes from API data
+
+        types.forEach(type => {
+            const checkboxItem = document.createElement('div');
+            checkboxItem.className = 'checkbox-item';
+
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = `type-${type.type_id}`;
+            input.name = 'item-type[]';
+            input.value = type.type_id;
+
+            const label = document.createElement('label');
+            label.htmlFor = `type-${type.type_id}`;
+            label.textContent = type.type_name;
+
+            checkboxItem.appendChild(input);
+            checkboxItem.appendChild(label);
+            checkboxGroup.appendChild(checkboxItem);
+        });
+    }
+
+    // Modify the openModal function to handle equipment types
     function openModal(type, data = null) {
         const modal = modals[type];
         const form = document.getElementById(`${type}-form`);
@@ -295,11 +365,48 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Populate form fields based on data object
             for (const key in data) {
+                // Skip the types field for equipment as we handle it separately
+                if (type === 'item' && key === 'type') continue;
+                
                 const input = form.querySelector(`#${type}-${key}`);
                 if (input) {
                     input.value = data[key];
                 }
             }
+        }
+        
+        // Load equipment types for item modal
+        if (type === 'item') {
+            loadEquipmentTypes().then(() => {
+                // After loading types, populate selected types for edit mode
+                if (data && data.type) {
+                    console.log("Setting up equipment type:", data);
+                    
+                    // Handle different data formats for type
+                    let typeIds = [];
+                    
+                    if (typeof data.type === 'string' && data.type.includes(',')) {
+                        // Handle comma-separated string of type IDs
+                        typeIds = data.type.split(',').map(id => id.trim());
+                    } else if (Array.isArray(data.type)) {
+                        // Handle array of type IDs
+                        typeIds = data.type;
+                    } else {
+                        // Handle single type ID
+                        typeIds = [data.id];
+                    }
+                    
+                    // Check corresponding checkboxes
+                    typeIds.forEach(typeId => {
+                        const checkbox = document.getElementById(`type-${typeId}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        } else {
+                            console.warn(`Checkbox for type ID ${typeId} not found`);
+                        }
+                    });
+                }
+            });
         }
         
         // Show modal
@@ -334,8 +441,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const formData = new FormData(form);
         const data = {};
         
+        // Process regular form fields
         for (const [key, value] of formData.entries()) {
+            // Skip the equipment types as we handle them separately
+            if (key === 'item-type[]') continue;
             data[key.split('-')[1]] = value;
+        }
+        
+        // Special handling for equipment types (checkboxes)
+        if (type === 'item') {
+            // Get all checked equipment types
+            const checkedTypes = [];
+            document.querySelectorAll('#item-types-container input[name="item-type[]"]:checked').forEach(checkbox => {
+                checkedTypes.push(checkbox.value);
+            });
+            data.type = checkedTypes.join(','); // Join as comma-separated string for API
         }
         
         // Check if we're in edit mode

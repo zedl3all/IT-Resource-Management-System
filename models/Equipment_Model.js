@@ -3,7 +3,13 @@ const {v4: uuidv4} = require('uuid');
 
 const Equipment = {
     getAll: (callback) => {
-        const query = 'SELECT * FROM equipment WHERE is_deleted = 0'
+        const query = `SELECT eq.* , et.type_id, t.type_name
+                    FROM equipment AS eq
+                    JOIN equipment_type as et 
+                    ON et.e_id = eq.e_id
+                    JOIN type AS t
+                    ON t.type_id = et.type_id
+                    WHERE eq.is_deleted = 0`;
         db.query(query, (err, results) => {
             if (err) return callback(err);
             callback(null, results);

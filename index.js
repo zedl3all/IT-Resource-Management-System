@@ -17,6 +17,7 @@ const equipmentRoutes = require('./routes/EquipmentRoute');
 const AuthRoute = require('./routes/AuthRoute');
 const maintenanceRoute = require('./routes/MaintenanceRoute')
 const imageRoutes = require('./routes/ImageRoute');
+const equipmentTypeRoutes = require('./routes/equipment-typesRoute');
 
 // Auth Routes
 app.use('/auth', AuthRoute);
@@ -28,6 +29,7 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/equipments', equipmentRoutes);
 app.use('/api/maintenances', maintenanceRoute);
 app.use('/api/images', imageRoutes);
+app.use('/api/equipment-types', equipmentTypeRoutes);
 app.use('/', webRoutes);
 
 // CSS
