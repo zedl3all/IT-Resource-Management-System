@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - IT Resource Management System</title>
+    <link rel="stylesheet" href="/css/user.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-laptop-code"></i>
+                <span>IT Resources</span>
+            </div>
+            <div class="menu">
+                <a href="#" class="menu-item active" data-section="bookings">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>การจองของฉัน</span>
+                </a>
+                <a href="#" class="menu-item" data-section="rooms">
+                    <i class="fas fa-door-open"></i>
+                    <span>จองห้อง</span>
+                </a>
+                <a href="#" class="menu-item" data-section="equipment">
+                    <i class="fas fa-laptop"></i>
+                    <span>จองอุปกรณ์</span>
+                </a>
+                <a href="#" class="menu-item" data-section="maintenance">
+                    <i class="fas fa-tools"></i>
+                    <span>แจ้งซ่อม</span>
+                </a>
+                <a id="logout-btn" class="menu-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>ออกจากระบบ</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="ค้นหา...">
+                </div>
+                <div class="user-info">
+                    <div class="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count">2</span>
+                    </div>
+                    <div class="user">
+                        <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="User Avatar">
+                        <span id="user-name">ผู้ใช้งาน</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- My Bookings Section -->
+            <section id="bookings" class="section active">
+                <div class="section-header">
+                    <h1>การจองของฉัน</h1>
+                    <div class="filter-controls">
+                        <select id="booking-filter">
+                            <option value="all">ทั้งหมด</option>
+                            <option value="active">ใช้งานอยู่</option>
+                            <option value="upcoming">กำลังจะมาถึง</option>
+                            <option value="completed">เสร็จสิ้นแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="cards-container">
+                    <div class="stat-card">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">การจองทั้งหมด</div>
+                        <i class="fas fa-calendar-check stat-icon"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">ใช้งานอยู่</div>
+                        <i class="fas fa-play-circle stat-icon"></i>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">กำลังจะมาถึง</div>
+                        <i class="fas fa-clock stat-icon"></i>
+                    </div>
+                </div>
+
+                <div class="bookings-container" id="my-bookings-container">
+                    <!-- User bookings will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Room Booking Section -->
+            <section id="rooms" class="section">
+                <div class="section-header">
+                    <h1>จองห้อง</h1>
+                    <div class="filter-controls">
+                        <input type="date" id="room-date-filter" class="date-filter">
+                        <select id="room-capacity-filter">
+                            <option value="">ความจุทั้งหมด</option>
+                            <option value="1-10">1-10 คน</option>
+                            <option value="11-20">11-20 คน</option>
+                            <option value="21-50">21-50 คน</option>
+                            <option value="50+">มากกว่า 50 คน</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="available-rooms-table">
+                        <thead>
+                            <tr>
+                                <th>รหัสห้อง</th>
+                                <th>ชื่อห้อง</th>
+                                <th>รายละเอียด</th>
+                                <th>ความจุ</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Available rooms will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Equipment Booking Section -->
+            <section id="equipment" class="section">
+                <div class="section-header">
+                    <h1>จองอุปกรณ์</h1>
+                    <div class="filter-controls">
+                        <select id="equipment-type-filter">
+                            <option value="">ประเภททั้งหมด</option>
+                            <!-- Equipment types will be loaded here -->
+                        </select>
+                        <select id="equipment-status-filter">
+                            <option value="">สถานะทั้งหมด</option>
+                            <option value="available">ว่าง</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="available-equipment-table">
+                        <thead>
+                            <tr>
+                                <th>รหัสอุปกรณ์</th>
+                                <th>ชื่ออุปกรณ์</th>
+                                <th>ประเภท</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Available equipment will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Maintenance Request Section -->
+            <section id="maintenance" class="section">
+                <div class="section-header">
+                    <h1>แจ้งซ่อมอุปกรณ์</h1>
+                    <button class="btn-add" id="add-maintenance-btn">
+                        <i class="fas fa-plus"></i> แจ้งซ่อมใหม่
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="my-maintenance-table">
+                        <thead>
+                            <tr>
+                                <th>รหัสรายการ</th>
+                                <th>อุปกรณ์</th>
+                                <th>รายละเอียดปัญหา</th>
+                                <th>วันที่แจ้ง</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- User maintenance requests will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Room Booking Modal -->
+    <div class="modal" id="room-booking-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>จองห้อง</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="room-booking-form">
+                <div class="form-group">
+                    <label>ห้องที่เลือก</label>
+                    <div class="selected-room-info">
+                        <h3 id="selected-room-name"></h3>
+                        <p id="selected-room-details"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="booking-date">วันที่จอง</label>
+                    <input type="date" id="booking-date" name="booking-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="booking-start-time">เวลาเริ่ม</label>
+                    <input type="time" id="booking-start-time" name="booking-start-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="booking-end-time">เวลาสิ้นสุด</label>
+                    <input type="time" id="booking-end-time" name="booking-end-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="booking-purpose">วัตถุประสงค์</label>
+                    <textarea id="booking-purpose" name="booking-purpose" rows="3" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">ยกเลิก</button>
+                    <button type="submit" class="btn-save">จองห้อง</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Equipment Booking Modal -->
+    <div class="modal" id="equipment-booking-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>จองอุปกรณ์</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="equipment-booking-form">
+                <div class="form-group">
+                    <label>อุปกรณ์ที่เลือก</label>
+                    <div class="selected-equipment-info">
+                        <h3 id="selected-equipment-name"></h3>
+                        <p id="selected-equipment-details"></p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="equipment-booking-date">วันที่จอง</label>
+                    <input type="date" id="equipment-booking-date" name="equipment-booking-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="equipment-booking-time">เวลาที่จอง</label>
+                    <input type="time" id="equipment-booking-time" name="equipment-booking-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="equipment-return-date">วันที่คืน</label>
+                    <input type="date" id="equipment-return-date" name="equipment-return-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="equipment-return-time">เวลาที่คืน</label>
+                    <input type="time" id="equipment-return-time" name="equipment-return-time" required>
+                </div>
+                <div class="form-group">
+                    <label for="equipment-purpose">วัตถุประสงค์การใช้งาน</label>
+                    <textarea id="equipment-purpose" name="equipment-purpose" rows="3" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">ยกเลิก</button>
+                    <button type="submit" class="btn-save">จองอุปกรณ์</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Maintenance Request Modal -->
+    <div class="modal" id="maintenance-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>แจ้งซ่อมอุปกรณ์</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="maintenance-form">
+                <div class="form-group">
+                    <label for="maintenance-equipment">อุปกรณ์ที่มีปัญหา</label>
+                    <input type="text" id="maintenance-equipment" name="maintenance-equipment" placeholder="ระบุชื่ออุปกรณ์ หรือรหัสอุปกรณ์" required>
+                </div>
+                <div class="form-group">
+                    <label for="maintenance-problem">รายละเอียดปัญหา</label>
+                    <textarea id="maintenance-problem" name="maintenance-problem" rows="4" placeholder="อธิบายปัญหาที่เกิดขึ้นโดยละเอียด" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="maintenance-location">ตำแหน่งของอุปกรณ์</label>
+                    <input type="text" id="maintenance-location" name="maintenance-location" placeholder="เช่น ห้อง 301 อาคาร 2" required>
+                </div>
+                <div class="form-group">
+                    <label for="maintenance-urgency">ระดับความเร่งด่วน</label>
+                    <select id="maintenance-urgency" name="maintenance-urgency" required>
+                        <option value="low">ต่ำ - ไม่เร่งด่วน</option>
+                        <option value="medium">ปานกลาง - ค่อนข้างเร่งด่วน</option>
+                        <option value="high">สูง - เร่งด่วนมาก</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="maintenance-images">รูปภาพประกอบ (ถ้ามี)</label>
+                    <div class="file-upload-container">
+                        <input type="file" id="maintenance-images" name="maintenance-images" multiple accept="image/*">
+                        <label for="maintenance-images" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i> เลือกรูปภาพ
+                        </label>
+                    </div>
+                    <div class="image-preview-container" id="maintenance-image-preview">
+                        <!-- Image previews will be displayed here -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel">ยกเลิก</button>
+                    <button type="submit" class="btn-save">แจ้งซ่อม</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/user.js"></script>
+</body>
+</html>

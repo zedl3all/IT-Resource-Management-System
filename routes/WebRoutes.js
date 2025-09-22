@@ -19,4 +19,6 @@ router.get('/login', (req, res) => {
 
 router.get('/staff', authenticateToken, checkRole(['admin', 'staff']), WebController.getStaffView);
 
+router.get('/home', authenticateToken, WebController.getHomeView);
+
 module.exports = router;

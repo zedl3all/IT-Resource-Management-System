@@ -641,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Refresh data list based on type
                 if (type === 'rooms') {
                     loadRooms();
-                } else if (type === 'items') {
+                } else if (type === 'equipments') {
                     loadEquipments();
                 } else if (type === 'repairs') {
                     loadMaintenance();
