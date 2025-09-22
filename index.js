@@ -3,6 +3,7 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 3000;
 const path = require('path');
+const UpdateStatusService = require('./middleware/UpdateService');
 
 // Middleware
 app.use(express.json());
@@ -34,6 +35,9 @@ app.use('/', webRoutes);
 
 // CSS
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Start the auto-update service
+UpdateStatusService.startAutoUpdate(1); // Update every 5 minutes
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
