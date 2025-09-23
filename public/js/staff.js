@@ -141,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <button class="btn-view" data-item-id="${item.equipment_id || item.id}"><i class="fas fa-eye"></i></button>
                         <button class="btn-delete" data-item-id="${item.equipment_id || item.id}"><i class="fas fa-trash"></i></button>
                     </td>
+                    <td style="display:none;">${item.type_id}</td>
                 `;
                     itemsTableBody.appendChild(row);
                 });
@@ -384,16 +385,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     // Handle different data formats for type
                     let typeIds = [];
-                    
-                    if (typeof data.type === 'string' && data.type.includes(',')) {
+                    // TODO: Fix here if necessary
+                    if (typeof data.type_id === 'string' && data.type_id.includes(',')) {
                         // Handle comma-separated string of type IDs
-                        typeIds = data.type.split(',').map(id => id.trim());
-                    } else if (Array.isArray(data.type)) {
+                        typeIds = data.type_id.split(',').map(id => id.trim());
+                    } else if (Array.isArray(data.type_id)) {
                         // Handle array of type IDs
-                        typeIds = data.type;
+                        typeIds = data.type_id;
                     } else {
                         // Handle single type ID
-                        typeIds = [data.id];
+                        typeIds = [data.type_id];
                     }
                     
                     // Check corresponding checkboxes
@@ -595,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 data.type = cells[2].textContent;
                 data.status = cells[3].querySelector('.status').classList.contains('available') ? 'available' :
                     cells[3].querySelector('.status').classList.contains('booked') ? 'booked' : 'maintenance';
-                data['purchase-date'] = cells[4].textContent;
+                data.type_id = cells[5].textContent; // Hidden type_id column
             } else if (type === 'repairs') {
                 data.id = cells[0].textContent;
                 data.item = cells[1].textContent;
