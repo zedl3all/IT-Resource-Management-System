@@ -108,6 +108,8 @@ const AuthController = {
                     maxAge: 24 * 60 * 60 * 1000, // 24 ชั่วโมง
                     sameSite: 'strict' // ป้องกัน CSRF
                 });
+
+                
                 
                 // ส่งข้อมูลกลับโดยไม่ส่ง token (เพราะเก็บใน cookie แล้ว)
                 res.status(200).json({ 

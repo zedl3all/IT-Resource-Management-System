@@ -37,13 +37,26 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = await response.json();
 
             if (response.ok) {
-                // Store token in localStorage for future API calls
-                if (result.token) {
-                    localStorage.setItem("token", result.token);
+
+                console.log("Login successful:", result.user);
+
+                // Store user role if available
+                if (result.user.role) {
+                    localStorage.setItem("userRole", result.user.role);
                 }
 
-                alert("เข้าสู่ระบบสำเร็จ!");
-                // window.location.href = "/dashboard"; // Redirect to dashboard after login
+                if(result.user.name){
+                    localStorage.setItem("userName", result.user.name);
+                }
+
+                alert("เข้าสู่ระบบสำเร็จ");
+
+                // Role-based redirection
+                if (result.user.role === 'staff' || result.user.role === 'admin') {
+                    window.location.href = "/staff"; // Redirect staff to staff dashboard
+                } else {
+                    window.location.href = "/user"; // Redirect regular users to user dashboard
+                }
             } else {
                 alert(result.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
             }

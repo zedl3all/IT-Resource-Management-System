@@ -7,7 +7,9 @@ const WebController = require('../controllers/Web_Controller');
 const authenticateToken = require('../middleware/Auth_Middleware');
 const checkRole = require('../middleware/CheckRole');
 
-router.get('/', UserController.getUserView);
+router.get('/', (req, res) => {
+    res.render('index');
+});
 
 router.get('/register', (req, res) => {
     res.render('register');
@@ -19,6 +21,6 @@ router.get('/login', (req, res) => {
 
 router.get('/staff', authenticateToken, checkRole(['admin', 'staff']), WebController.getStaffView);
 
-router.get('/home', authenticateToken, WebController.getHomeView);
+router.get('/user', authenticateToken, WebController.getUserView);
 
 module.exports = router;

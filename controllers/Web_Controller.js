@@ -8,7 +8,7 @@ const WebController = {
             res.render('staff');
         });
     },
-    getHomeView: (req, res) => {
+    getUserView: (req, res) => {
         res.render('user');
     }
 };

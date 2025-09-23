@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => {
                     if (response.ok) {
                         alert('ออกจากระบบสำเร็จ');
-                        window.location.href = '/login'; // redirect ไปที่หน้า login
+                        window.location.href = '/'; // redirect ไปที่หน้า index
                     } else {
                         alert('เกิดข้อผิดพลาดในการออกจากระบบ');
                     }
@@ -964,5 +964,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatTime(timeString) {
         const [hours, minutes] = timeString.split(':');
         return `${hours}:${minutes}`;
+    }
+
+    // update user profile name in navbar
+    const profileNameElem = document.getElementById('profile-name');
+    const userName = localStorage.getItem("userName");
+    if (userName) {
+        profileNameElem.textContent = userName;
     }
 });

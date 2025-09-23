@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => {
             if (response.ok) {
                 alert('ออกจากระบบสำเร็จ');
-                window.location.href = '/login';
+                window.location.href = '/'; // redirect ไปที่หน้า index
             } else {
                 alert('เกิดข้อผิดพลาดในการออกจากระบบ');
             }
@@ -476,4 +476,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Load initial data
     loadMyBookings();
+
+    // update user profile
+    const profileNameElem = document.getElementById('user-name');
+    const userName = localStorage.getItem("userName");
+    if (userName) {
+        profileNameElem.textContent = userName;
+    }
 });
