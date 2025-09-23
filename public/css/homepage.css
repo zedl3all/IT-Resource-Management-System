@@ -204,6 +204,10 @@ img {
     flex: 1;
     max-width: 500px;
     margin-left: 50px;
+    img {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
 }
 
 /* Features Section */
@@ -310,6 +314,12 @@ img {
 
 .about-image {
     flex: 1;
+    max-width: 500px;
+    margin-left: 50px;
+    img {
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
 }
 
 /* Testimonials */
@@ -542,6 +552,8 @@ img {
     
     .hero-image {
         margin-left: 0;
+        max-width: 100%;
+        height: auto;
     }
     
     .about .container {
