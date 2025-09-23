@@ -1,6 +1,3 @@
-// TODO: Implement Create Equipment
-// TODO: Implement Update Equipment
-// TODO: Implement Delete Equipment
 // TODO: Implement View Loan Equipment
 
 // TODO: Implement EDIT Maintenance Request
@@ -346,13 +343,13 @@ document.addEventListener('DOMContentLoaded', function () {
     function openModal(type, data = null) {
         const modal = modals[type];
         const form = document.getElementById(`${type}-form`);
-        
+
         // Reset form
         form.reset();
-        
+
         // Set edit mode flag - initialize as false (new item)
         form.setAttribute('data-edit-mode', 'false');
-        
+
         // If we have data (for edit), populate form fields
         if (data) {
             // Set edit mode flag to true
@@ -363,26 +360,26 @@ document.addEventListener('DOMContentLoaded', function () {
             if (modalTitle) {
                 modalTitle.textContent = `แก้ไขข้อมูล${type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม'}`;
             }
-            
+
             // Populate form fields based on data object
             for (const key in data) {
                 // Skip the types field for equipment as we handle it separately
                 if (type === 'item' && key === 'type') continue;
-                
+
                 const input = form.querySelector(`#${type}-${key}`);
                 if (input) {
                     input.value = data[key];
                 }
             }
         }
-        
+
         // Load equipment types for item modal
         if (type === 'item') {
             loadEquipmentTypes().then(() => {
                 // After loading types, populate selected types for edit mode
                 if (data && data.type) {
                     console.log("Setting up equipment type:", data);
-                    
+
                     // Handle different data formats for type
                     let typeIds = [];
                     // TODO: Fix here if necessary
@@ -396,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Handle single type ID
                         typeIds = [data.type_id];
                     }
-                    
+
                     // Check corresponding checkboxes
                     typeIds.forEach(typeId => {
                         const checkbox = document.getElementById(`type-${typeId}`);
@@ -409,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         }
-        
+
         // Show modal
         modal.style.display = 'block';
     }
@@ -441,14 +438,14 @@ document.addEventListener('DOMContentLoaded', function () {
         // Get form data
         const formData = new FormData(form);
         const data = {};
-        
+
         // Process regular form fields
         for (const [key, value] of formData.entries()) {
             // Skip the equipment types as we handle them separately
             if (key === 'item-type[]') continue;
             data[key.split('-')[1]] = value;
         }
-        
+
         // Special handling for equipment types (checkboxes)
         if (type === 'item') {
             // Get all checked equipment types
@@ -458,16 +455,20 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             data.type = checkedTypes.join(','); // Join as comma-separated string for API
         }
-        
+
         // Check if we're in edit mode
         const isEditMode = form.getAttribute('data-edit-mode') === 'true';
         const id = data.id;
-        
+
         console.log(`${isEditMode ? 'Updating' : 'Creating new'} ${type} data:`, data);
-        
+
+        if (data.status === "available") data.status = 1;
+        else if (data.status === "booked") data.status = 0;
+        else if (data.status === "maintenance") data.status = -1;
+
         // Determine API endpoint and HTTP method based on edit mode
         let endpoint, method;
-        
+
         if (isEditMode) {
             if (type === 'room') {
                 endpoint = `/api/rooms/${id}`;
@@ -491,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 method = 'POST';
             }
         }
-        
+
         // Make API call
         fetch(endpoint, {
             method: method,
@@ -500,36 +501,36 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             body: JSON.stringify(data),
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(result => {
-            console.log('Success:', result);
-            
-            // Refresh data list based on type
-            if (type === 'room') {
-                loadRooms();
-            } else if (type === 'item') {
-                loadEquipments();
-            } else if (type === 'repair') {
-                loadMaintenance();
-            }
-            
-            // Close modal
-            modals[type].style.display = 'none';
-            
-            // Show success message
-            const action = isEditMode ? 'อัพเดท' : 'บันทึก';
-            const typeText = type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม';
-            alert(`${action}ข้อมูล${typeText}สำเร็จ`);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(`เกิดข้อผิดพลาด! ไม่สามารถ${isEditMode ? 'อัพเดท' : 'บันทึก'}ข้อมูลได้`);
-        });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log('Success:', result);
+
+                // Refresh data list based on type
+                if (type === 'room') {
+                    loadRooms();
+                } else if (type === 'item') {
+                    loadEquipments();
+                } else if (type === 'repair') {
+                    loadMaintenance();
+                }
+
+                // Close modal
+                modals[type].style.display = 'none';
+
+                // Show success message
+                const action = isEditMode ? 'อัพเดท' : 'บันทึก';
+                const typeText = type === 'room' ? 'ห้อง' : type === 'item' ? 'อุปกรณ์' : 'รายการซ่อม';
+                alert(`${action}ข้อมูล${typeText}สำเร็จ`);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`เกิดข้อผิดพลาด! ไม่สามารถ${isEditMode ? 'อัพเดท' : 'บันทึก'}ข้อมูลได้`);
+            });
     }
 
     // ใช้ event delegation สำหรับปุ่มทั้งหมด
@@ -626,19 +627,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetch(`/api/${type}/${id}`, {
                     method: 'DELETE',
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(result => {
-                    console.log('Deleted successfully:', result);
-                    console.log(`Deleting ${type} with ID: ${id}`);
-                })
-                .catch(error => {
-                    console.error('Error deleting:', error);
-                });
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(result => {
+                        console.log('Deleted successfully:', result);
+                        console.log(`Deleting ${type} with ID: ${id}`);
+                    })
+                    .catch(error => {
+                        console.error('Error deleting:', error);
+                    });
                 // Refresh data list based on type
                 if (type === 'rooms') {
                     loadRooms();
@@ -674,21 +675,21 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (e.target.closest('.btn-images')) {
             const button = e.target.closest('.btn-images');
             const imagesAttr = button.getAttribute('data-images');
-            
+
             // Check if the data-images attribute exists and is not empty
             if (!imagesAttr) {
                 alert('ไม่พบรูปภาพสำหรับรายการนี้');
                 return;
             }
-            
+
             const imageList = imagesAttr.split(',').filter(img => img.trim());
-            
+
             // Validate that we have images to show
             if (imageList.length === 0) {
                 alert('ไม่พบรูปภาพสำหรับรายการนี้');
                 return;
             }
-            
+
             // Create proper API paths for the images
             images = imageList.map(img => `/api/images?path=${img.trim().replace(/^\.\/Images\//, '')}`);
             const imageThumbnails = document.getElementById('image-thumbnails');
@@ -748,20 +749,20 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error('No images available to display');
             return;
         }
-        
+
         // Handle edge cases for index
         if (index < 0) index = images.length - 1;
         if (index >= images.length) index = 0;
 
         currentImageIndex = index;
-        
+
         // Make sure we have a valid image URL
         const imageUrl = images[index] || '';
         if (!imageUrl) {
             console.error('Invalid image URL at index:', index);
             return;
         }
-        
+
         mainImage.src = imageUrl;
         imageCounter.textContent = `${index + 1}/${images.length}`;
 
@@ -973,4 +974,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userName) {
         profileNameElem.textContent = userName;
     }
+
+    //make checkbox can check only one
+    document.getElementById('item-types-container').addEventListener('change', function (e) {
+        if (e.target.name === 'item-type[]') {
+            const checkboxes = document.querySelectorAll('input[name="item-type[]"]');
+            checkboxes.forEach(checkbox => {
+                if (checkbox !== e.target) {
+                    checkbox.checked = false;
+                }
+            });
+        }
+    });
 });

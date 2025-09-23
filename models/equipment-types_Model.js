@@ -8,8 +8,22 @@ const EquipmentType = {
             if (err) return callback(err);
             callback(null, results);
         });
-    }
+    },
+    deleteFromEquipmentId: (id, callback) => {
+        const query = 'DELETE FROM equipment_type WHERE type_id = ?';
+        db.query(query, [id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
+    editTypeByEquipmentId: (e_id, typeIds, callback) => {
+        const Query = 'UPDATE equipment_type SET type_id = ? WHERE e_id = ?';
+        db.query(Query, [typeIds, e_id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
     // Add more CRUD operations as needed
-}
+};
 
 module.exports = EquipmentType;
