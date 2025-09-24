@@ -241,7 +241,6 @@ document.addEventListener('DOMContentLoaded', function () {
             available: equipments.filter(item => item.status === STATUS_MAPPING.AVAILABLE).length,
             booked: equipments.filter(item => item.status === STATUS_MAPPING.BOOKED).length
         };
-        
         updateStatCards('#items', stats);
     }
     
@@ -266,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (statCards.length >= 3) {
             statCards[0].textContent = stats.total;
             statCards[1].textContent = stats.available || stats.pending;
-            statCards[2].textContent = stats.booked || stats.inProgress;
+            statCards[2].textContent = stats.booked || stats.inProgress || 0;
         }
     }
     
