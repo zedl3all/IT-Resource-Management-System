@@ -10,4 +10,6 @@ router.put('/:id', MaintenanceController.updateMaintenance);
 router.delete('/:id', MaintenanceController.softDeleteMaintenance);
 router.post('/:id/restore', MaintenanceController.restoreMaintenance);
 
+router.patch('/:id/updateStaffAndStatus', MaintenanceController.updateStaffAndStatus);
+
 module.exports = router;

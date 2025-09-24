@@ -918,6 +918,35 @@ input:focus, select:focus, textarea:focus {
     }
 }
 
+/* Disabled fields styles */
+.disabled-field {
+    position: relative;
+}
+
+.disabled-field::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.05);
+    pointer-events: none;
+}
+
+.disabled-field label {
+    color: #999;
+}
+
+.disabled-field input,
+.disabled-field select,
+.disabled-field textarea {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    color: #777;
+    cursor: not-allowed;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
     .sidebar {

@@ -67,6 +67,13 @@ const User = {
             if (err) return callback(err);
             callback(null, results[0]);
         });
+    },
+    getAllStaff: (callback) => {
+        const query = 'SELECT * FROM users WHERE role = "staff" AND is_deleted = 0'
+        db.query(query, (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
     }
 };
 module.exports = User;

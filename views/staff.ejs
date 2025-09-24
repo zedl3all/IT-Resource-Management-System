@@ -176,9 +176,6 @@
             <section id="repairs" class="section">
                 <div class="section-header">
                     <h1>รายการอุปกรณ์ที่ต้องซ่อม</h1>
-                    <button class="btn-add" id="add-repair-btn">
-                        <i class="fas fa-plus"></i> เพิ่มรายการซ่อม
-                    </button>
                 </div>
 
                 <div class="cards-container">
@@ -376,12 +373,7 @@
                 </div>
                 <div class="form-group">
                     <label for="repair-item">อุปกรณ์</label>
-                    <select id="repair-item" name="repair-item" required>
-                        <option value="">-- เลือกอุปกรณ์ --</option>
-                        <option value="I001">โน้ตบุ๊ก Dell XPS 15 (I001)</option>
-                        <option value="I002">โปรเจคเตอร์ Epson (I002)</option>
-                        <option value="I003">iPad Pro 12.9" (I003)</option>
-                    </select>
+                    <input type="text" id="repair-item" name="repair-item" required>
                 </div>
                 <div class="form-group">
                     <label for="repair-issue">รายละเอียดปัญหา</label>
@@ -399,6 +391,7 @@
                     <label for="repair-staff">เจ้าหน้าที่ผู้รับผิดชอบ</label>
                     <select id="repair-staff" name="repair-staff">
                         <option value="">-- ยังไม่กำหนดผู้รับผิดชอบ --</option>
+                        <!-- Implement use js -->
                         <option value="staff1">นายช่างใจดี</option>
                         <option value="staff2">นายช่างมือหนึ่ง</option>
                         <option value="staff3">นายช่างเทคนิค</option>
@@ -430,10 +423,6 @@
                         <option value="in-progress">กำลังซ่อม</option>
                         <option value="completed">ซ่อมเสร็จแล้ว</option>
                     </select>
-                </div>
-                <div class="form-group">
-                    <label for="repair-notes">หมายเหตุ</label>
-                    <textarea id="repair-notes" name="repair-notes" rows="3"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancel">ยกเลิก</button>

@@ -83,6 +83,20 @@ const MaintenanceController = {
                 details: results
             });
         });
+    },
+    updateStaffAndStatus: (req, res) => {
+        const MaintenanceId = req.params.id;
+        const { staff_id, status } = req.body;
+        Maintenance.updateStaffAndStatus(MaintenanceId, staff_id, status, (err, results) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.json({
+                message: 'Maintenance staff and status updated successfully',
+                details: results
+            });
+        });
     }
 }
 

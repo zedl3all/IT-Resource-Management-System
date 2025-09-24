@@ -13,4 +13,6 @@ router.post('/:id/restore', UserController.restoreUser);
 router.get('/findByEmail/:email', UserController.findByEmail); // New route to find user by email
 router.get('/findByUsername/:username', UserController.findByUsername); // New route to find user by username
 
+router.get('/staff/all', UserController.getAllStaff); // New route to get all staff users
+
 module.exports = router;

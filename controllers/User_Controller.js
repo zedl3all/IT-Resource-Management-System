@@ -121,6 +121,15 @@ const UserController = {
             });
             res.status(200).json(user);
         });
+    },
+    getAllStaff: (req, res) => {
+        User.getAllStaff((err, users) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.status(200).json({ users });
+        });
     }
 };
 

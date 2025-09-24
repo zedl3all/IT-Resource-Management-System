@@ -3,7 +3,7 @@ const {v4: uuidv4} = require('uuid');
 
 const broken_items = {
     getAll: (callback) => {
-        const query = `SELECT M.*, USER.username as username, STAFF.username as staff_username
+        const query = `SELECT M.*, USER.username as username, STAFF.username as staff_username, STAFF.fullname as staff_fullname
                     FROM maintenance as M
                     JOIN users as USER ON M.user_id = USER.user_id
                     JOIN users as STAFF ON M.staff_id = STAFF.user_id;`
@@ -43,6 +43,14 @@ const broken_items = {
             callback(null, { request_id: id, ...data });
         }
         );
+    },
+    updateStaffAndStatus: (id, staff_id, status, callback) => {
+        console.log(id, staff_id, status);
+        const query = 'UPDATE maintenance SET staff_id = ?, status = ? WHERE request_id = ?';
+        db.query(query, [staff_id, status, id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, { request_id: id, staff_id, status });
+        });
     },
     // no delete function for maintenance records
 }
