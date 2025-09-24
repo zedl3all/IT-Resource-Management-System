@@ -1,5 +1,3 @@
-// TODO: Implement View Loan Equipment
-
 // TODO: Implement EDIT Maintenance Request
 // TODO: Implement REMOVE CREATE MAINTENANCE REQUEST FOR STAFF
 
@@ -122,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         statusText = 'ว่าง';
                     } else if (item.status === 0) {
                         statusClass = 'booked';
-                        statusText = 'จองแล้ว';
+                        statusText = 'ยืมใช้งาน';
                     } else {
                         statusClass = 'maintenance';
                         statusText = 'ซ่อมบำรุง';
@@ -659,14 +657,78 @@ document.addEventListener('DOMContentLoaded', function () {
             const id = row.querySelector('td:first-child').textContent;
             const name = row.querySelector('td:nth-child(2)').textContent;
             const type = row.querySelector('td:nth-child(3)').textContent;
-            const status = row.querySelector('td:nth-child(4) .status').textContent;
-            const purchaseDate = row.querySelector('td:nth-child(5)').textContent;
-
-            // อัพเดตข้อมูลใน modal
+            const statusElement = row.querySelector('td:nth-child(4) .status');
+            const statusText = statusElement.textContent;
+            const statusClass = statusElement.classList.contains('available') ? 'available' : 
+                                statusElement.classList.contains('booked') ? 'booked' : 'maintenance';
+            
+            // อัพเดตข้อมูลพื้นฐานใน modal
             document.getElementById('details-item-name').textContent = `${name} (${id})`;
             document.getElementById('details-item-types').innerHTML = `<span class="item-type">${type}</span>`;
-            document.getElementById('details-purchase-date').textContent = purchaseDate;
+            document.getElementById('details-item-status').textContent = statusText;
+            document.getElementById('details-item-status').className = `status ${statusClass}`;
+            
+            // ดึงข้อมูลการจองจาก API
+            fetch(`/api/equipments/${id}/loans`)
+                .then(response => response.json())
+                .then(data => {
+                    //console.log('Loan data:', data);
+                    
+                    // ถ้ามีข้อมูลการจอง
+                    if (data && data.loans && data.loans.length > 0) {
+                        // หาก status = 1 ไม่ต้องแสดงข้อมูลการจอง
 
+                        if (data.loans[0].status === 1) {
+                            document.getElementById('booking-info-section').style.display = 'none';
+                            document.getElementById('details-loan-id').textContent = '-';
+                            document.getElementById('details-equipment-id').textContent = id;
+                            document.getElementById('details-user-id').textContent = '-';
+                        } else {
+                            const loan = data.loans[0];
+                            //console.log('Displaying loan details:', loan);
+                            
+                            // แสดงส่วนข้อมูลการจอง
+                            document.getElementById('booking-info-section').style.display = 'block';
+                            
+                            // อัพเดตข้อมูลการจอง
+                            document.getElementById('details-borrower').textContent = loan.user_name || '';
+                            
+                            // แปลง datetime string เป็น Date objects
+                            const borrowDateTime = new Date(loan.borrow_DT);
+                            const returnDateTime = new Date(loan.return_DT);
+                            
+                            // แยกวันที่และเวลา
+                            const borrowDate = borrowDateTime.toISOString().split('T')[0];
+                            const borrowTime = borrowDateTime.toTimeString().slice(0, 5);
+                            const returnDate = returnDateTime.toISOString().split('T')[0];
+                            const returnTime = returnDateTime.toTimeString().slice(0, 5);
+                            
+                            document.getElementById('details-borrow-date').textContent = borrowDate;
+                            document.getElementById('details-borrow-time').textContent = borrowTime + ' น.';
+                            document.getElementById('details-return-date').textContent = returnDate;
+                            document.getElementById('details-return-time').textContent = returnTime + ' น.';
+                            
+                            // อัพเดตข้อมูลเพิ่มเติม
+                            document.getElementById('details-loan-id').textContent = loan.loan_id || '';
+                            document.getElementById('details-equipment-id').textContent = loan.e_id || '';
+                            document.getElementById('details-user-id').textContent = loan.user_id || '';
+                        }
+                    } else {
+                        // ไม่มีข้อมูลการจอง
+                        document.getElementById('booking-info-section').style.display = 'none';
+                        document.getElementById('details-loan-id').textContent = '-';
+                        document.getElementById('details-equipment-id').textContent = id;
+                        document.getElementById('details-user-id').textContent = '-';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching loan details:', error);
+                    document.getElementById('booking-info-section').style.display = 'none';
+                    document.getElementById('details-loan-id').textContent = '-';
+                    document.getElementById('details-equipment-id').textContent = id;
+                    document.getElementById('details-user-id').textContent = '-';
+                });
+            
             // แสดง modal
             document.getElementById('item-details-modal').style.display = 'block';
         }

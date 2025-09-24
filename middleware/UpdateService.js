@@ -49,9 +49,45 @@ class UpdateStatusService {
         }
     }
 
+    static async UpdateEquipmentStatus() {
+        try {
+            const currentTime = new Date();
+            // ? equipment status: 1 = available, 0 = in-use, -1 = maintenance
+            // หาก loan มีสถานะ 1 (คืนแล้ว)
+            const [returnedLoans] = await db.promise().query(`
+                SELECT DISTINCT e.e_id as e_id
+                FROM loan l
+                JOIN equipment e ON l.e_id = e.e_id
+                WHERE l.status = 1
+            `, [currentTime]);
+            if (returnedLoans.length > 0) {
+                const equipmentIds = returnedLoans.map(row => row.e_id);
+                await db.promise().query('UPDATE equipment SET status = 1 WHERE e_id IN (?)', [equipmentIds]);
+                console.log(`Updated ${equipmentIds.length} equipment back to available status`);
+            }
+            // หาก loan มีสถานะ 0 (ยังไม่คืน)
+            const [activeLoans] = await db.promise().query(`
+                SELECT DISTINCT e.e_id as e_id
+                FROM loan l
+                JOIN equipment e ON l.e_id = e.e_id
+                WHERE l.status = 0
+            `, [currentTime, currentTime]);
+            if (activeLoans.length > 0) {
+                const equipmentIds = activeLoans.map(row => row.e_id);
+                await db.promise().query('UPDATE equipment SET status = 0 WHERE e_id IN (?)', [equipmentIds]);
+                console.log(`Updated ${equipmentIds.length} equipment to in-use status`);
+            }
+        }
+        catch(error) {
+            console.error('Error updating equipment status:', error);
+        }
+    }
+
+
     static startAutoUpdate(intervalMinutes = 5) {
         setInterval(() => {
             this.updateRoomStatus();
+            this.UpdateEquipmentStatus();
         }, intervalMinutes * 60 * 1000);
         
         console.log(`Auto-update service started. Running every ${intervalMinutes} minutes.`);

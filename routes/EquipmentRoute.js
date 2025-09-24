@@ -9,5 +9,7 @@ router.post('/', EquipmentController.createEquipment);
 router.put('/:id', EquipmentController.updateEquipment);
 router.delete('/:id', EquipmentController.softDeleteEquipment);
 router.post('/:id/restore', EquipmentController.restoreEquipment);
+router.get('/:equipmentId/loans', EquipmentController.getLoanByEquipmentId);
+router.get('/user/:userId/loans', EquipmentController.getLoanByUserId);
 
 module.exports = router;

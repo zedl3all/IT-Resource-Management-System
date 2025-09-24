@@ -477,60 +477,63 @@
         </div>
     </div>
 
-    <!-- *Item Booking Details Modal - Add this to staff.ejs -->
+    <!-- *Item Booking Details Modal -->
     <div class="modal" id="item-details-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>รายละเอียดอุปกรณ์</h2>
+                <h2>รายละเอียดการจองอุปกรณ์</h2>
                 <span class="close">&times;</span>
             </div>
             <div class="item-details">
                 <div class="item-info">
-                    <h3 id="details-item-name">โน้ตบุ๊ก Dell XPS 15 (I001)</h3>
+                    <h3 id="details-item-name">ปลักไฟ (E001)</h3>
                     <div class="item-types" id="details-item-types">
-                        <span class="item-type">คอมพิวเตอร์</span>
-                        <span class="item-type">โน้ตบุ๊ก</span>
+                        <span class="item-type">อุปกรณ์ไฟฟ้า</span>
                     </div>
                 </div>
                 
                 <div class="item-status-details">
                     <div class="status-label">สถานะ:</div>
-                    <span class="status booked" id="details-item-status">จองแล้ว</span>
+                    <span class="status available" id="details-item-status">ว่าง</span>
                 </div>
                 
                 <div class="booking-info" id="booking-info-section">
                     <h4>ข้อมูลการจอง</h4>
                     <div class="booking-detail-row">
                         <span class="detail-label"><i class="fas fa-user"></i> ผู้จอง:</span>
-                        <span class="detail-value" id="details-borrower">วิชัย มานะ (แผนกบัญชี)</span>
+                        <span class="detail-value" id="details-borrower">it66070082</span>
                     </div>
                     <div class="booking-detail-row">
                         <span class="detail-label"><i class="fas fa-calendar"></i> วันที่จอง:</span>
-                        <span class="detail-value" id="details-borrow-date">2023-08-10</span>
+                        <span class="detail-value" id="details-borrow-date">2023-01-10</span>
                     </div>
                     <div class="booking-detail-row">
                         <span class="detail-label"><i class="fas fa-clock"></i> เวลาที่จอง:</span>
-                        <span class="detail-value" id="details-borrow-time">09:00 น.</span>
+                        <span class="detail-value" id="details-borrow-time">00:00 น.</span>
                     </div>
                     <div class="booking-detail-row">
                         <span class="detail-label"><i class="fas fa-calendar-check"></i> วันที่คืน (กำหนด):</span>
-                        <span class="detail-value" id="details-return-date">2023-08-17</span>
+                        <span class="detail-value" id="details-return-date">2023-01-20</span>
                     </div>
                     <div class="booking-detail-row">
                         <span class="detail-label"><i class="fas fa-clock"></i> เวลาที่คืน (กำหนด):</span>
-                        <span class="detail-value" id="details-return-time">17:00 น.</span>
+                        <span class="detail-value" id="details-return-time">00:00 น.</span>
                     </div>
                 </div>
                 
                 <div class="item-additional-info">
                     <h4>ข้อมูลเพิ่มเติม</h4>
                     <div class="detail-row">
-                        <span class="detail-label">วันที่จัดซื้อ:</span>
-                        <span class="detail-value" id="details-purchase-date">15/06/2022</span>
+                        <span class="detail-label">รหัสการจอง:</span>
+                        <span class="detail-value" id="details-loan-id">1</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">รายละเอียด:</span>
-                        <p class="detail-value" id="details-description">โน้ตบุ๊กรุ่นใหม่ สำหรับงานกราฟิกและวิดีโอ</p>
+                        <span class="detail-label">รหัสอุปกรณ์:</span>
+                        <span class="detail-value" id="details-equipment-id">1</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">รหัสผู้ใช้:</span>
+                        <span class="detail-value" id="details-user-id">1</span>
                     </div>
                 </div>
             </div>

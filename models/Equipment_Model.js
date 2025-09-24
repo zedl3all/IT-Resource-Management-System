@@ -70,7 +70,7 @@ const Equipment = {
                 let completed = 0;
                 let hasError = null;
 
-                if (typeIds.length === 0) { 
+                if (typeIds.length === 0) {
                     return db.commit((err) => {
                         if (err) {
                             return db.rollback(() => {
@@ -168,6 +168,28 @@ const Equipment = {
             if (err) return callback(err);
             callback(null, results);
         });
-    }
+    },
+    getLoanByUserId: (userId, callback) => {
+        const query = `SELECT loan.*, equipment.name AS equipment_name, users.username AS user_name
+                    FROM loan
+                    JOIN equipment ON loan.e_id = equipment.e_id
+                    JOIN users ON loan.user_id = users.user_id
+                    WHERE loan.user_id = ?`;
+        db.query(query, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
+    getLoanByEquipmentId: (eId, callback) => {
+        const query = `SELECT loan.*, equipment.name AS equipment_name, users.username AS user_name
+                    FROM loan
+                    JOIN equipment ON loan.e_id = equipment.e_id
+                    JOIN users ON loan.user_id = users.user_id
+                    WHERE loan.e_id = ?`;
+        db.query(query, [eId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
 }
 module.exports = Equipment;

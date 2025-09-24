@@ -83,6 +83,26 @@ const EquipmentController = {
                 details: results
             });
         });
+    },
+    getLoanByUserId: (req, res) => {
+        const userId = req.params.userId;
+        Equipment.getLoanByUserId(userId, (err, loans) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.status(200).json({ loans });
+        });
+    },
+    getLoanByEquipmentId: (req, res) => {
+        const equipmentId = req.params.equipmentId;
+        Equipment.getLoanByEquipmentId(equipmentId, (err, loans) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.status(200).json({ loans });
+        });
     }
 }
 module.exports = EquipmentController;
