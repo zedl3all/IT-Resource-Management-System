@@ -9,6 +9,7 @@ const UpdateStatusService = require('./middleware/UpdateService');
 app.use(express.json());
 app.use(cookieParser());
 app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
 const userRoutes = require('./routes/UserRoute');
@@ -32,9 +33,6 @@ app.use('/api/maintenances', maintenanceRoute);
 app.use('/api/images', imageRoutes);
 app.use('/api/equipment-types', equipmentTypeRoutes);
 app.use('/', webRoutes);
-
-// CSS
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Start the auto-update service
 UpdateStatusService.startAutoUpdate(1); // Update every 5 minutes
