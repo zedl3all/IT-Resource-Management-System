@@ -36,6 +36,11 @@ app.use('/api/equipment-types', equipmentTypeRoutes);
 app.use('/error', errorRoute);
 app.use('/', webRoutes);
 
+// handle 404
+app.use((req, res, next) => {
+    res.status(404).redirect('/error/404');
+});
+
 // Start the auto-update service
 UpdateStatusService.startAutoUpdate(1); // Update every 5 minutes
 
