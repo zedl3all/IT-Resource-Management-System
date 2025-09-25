@@ -19,18 +19,10 @@ const checkRole = (allowedRoles) => {
                     const jwt = require('jsonwebtoken');
                     req.user = jwt.verify(token, process.env.JWT_SECRET);
                 } catch (err) {
-                    return res.status(401).json({
-                        success: false,
-                        message: 'โปรดเข้าสู่ระบบก่อนใช้งาน',
-                        error: 'Invalid or expired token'
-                    });
+                    return res.redirect('/error/401');
                 }
             } else {
-                return res.status(401).json({
-                    success: false,
-                    message: 'โปรดเข้าสู่ระบบก่อนใช้งาน',
-                    error: 'Authentication required'
-                });
+                return res.redirect('/error/401');
             }
         }
 
@@ -38,11 +30,7 @@ const checkRole = (allowedRoles) => {
 
         // Check if user has a role
         if (!userRole) {
-            return res.status(401).json({
-                success: false,
-                message: 'บัญชีผู้ใช้ไม่มีระดับสิทธิ์',
-                error: 'No role assigned to user'
-            });
+            return res.redirect('/error/401');
         }
 
         // Admin role always has access to everything
@@ -56,13 +44,7 @@ const checkRole = (allowedRoles) => {
         }
 
         // If we get here, user doesn't have permission
-        return res.status(403).json({
-            success: false,
-            message: 'คุณไม่มีสิทธิ์เข้าถึงส่วนนี้',
-            error: 'Insufficient permissions',
-            requiredRoles: roles,
-            userRole: userRole
-        });
+        return res.redirect('/error/403');
     };
 };
 
