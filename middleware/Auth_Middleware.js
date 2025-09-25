@@ -14,31 +14,32 @@ const authenticateToken = (req, res, next) => {
     
     // Check if token is present
     if (!token) {
-        return res.status(401).json({ 
-            success: false,
-            message: 'โปรดเข้าสู่ระบบก่อนใช้งาน',
-            error: 'Access token required' 
-        });
+        // return res.status(401).render('login', {
+        //         success: false,
+        //         message: 'โทเค็นไม่ถูกต้องหรือหมดอายุ โปรดเข้าสู่ระบบใหม่',
+        //         error: 'Invalid or expired token'
+        //     });
+        return res.redirect('/login');
     }
     
     // Verify token
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             console.error('Token verification error:', err);
-            return res.status(403).json({
+            return res.status(403).render('login', {
                 success: false,
-                message: 'โทเค็นไม่ถูกต้องหรือหมดอายุ',
-                error: err.message
+                message: 'โทเค็นไม่ถูกต้องหรือหมดอายุ โปรดเข้าสู่ระบบใหม่',
+                error: 'Invalid or expired token'
             });
         }
         
         // ตรวจสอบว่า payload มีข้อมูลที่จำเป็นหรือไม่
         if (!decoded.userId || !decoded.role) {
             console.error('Invalid token structure:', decoded);
-            return res.status(403).json({
+            return res.status(403).render('login', {
                 success: false,
-                message: 'โทเค็นมีข้อมูลไม่ครบถ้วน',
-                error: 'Token payload missing required fields'
+                message: 'โทเค็นไม่ถูกต้อง โปรดเข้าสู่ระบบใหม่',
+                error: 'Invalid token structure'
             });
         }
         
