@@ -53,29 +53,47 @@ class UpdateStatusService {
         try {
             const currentTime = new Date();
             // ? equipment status: 1 = available, 0 = in-use, -1 = maintenance
-            // หาก loan มีสถานะ 1 (คืนแล้ว)
+
+            // หาก loan มีสถานะ 1 (คืนแล้ว) และอุปกรณ์ยังไม่ available
             const [returnedLoans] = await db.promise().query(`
                 SELECT DISTINCT e.e_id as e_id
                 FROM loan l
                 JOIN equipment e ON l.e_id = e.e_id
                 WHERE l.status = 1
-            `, [currentTime]);
+                AND e.status != 1
+                AND e.status != -1
+            `);
+            
             if (returnedLoans.length > 0) {
                 const equipmentIds = returnedLoans.map(row => row.e_id);
-                await db.promise().query('UPDATE equipment SET status = 1 WHERE e_id IN (?)', [equipmentIds]);
-                console.log(`Updated ${equipmentIds.length} equipment back to available status`);
+                const result = await db.promise().query('UPDATE equipment SET status = 1 WHERE e_id IN (?)', [equipmentIds]);
+                
+                // Only log if rows were actually updated
+                if (result[0].affectedRows > 0) {
+                    console.log(`Updated ${result[0].affectedRows} equipment back to available status`);
+                    console.log('Equipment IDs:', equipmentIds);
+                }
             }
-            // หาก loan มีสถานะ 0 (ยังไม่คืน)
+            
+            // หาก loan มีสถานะ 0 (ยังไม่คืน) และอุปกรณ์ยังไม่ถูกตั้งเป็น in-use
             const [activeLoans] = await db.promise().query(`
                 SELECT DISTINCT e.e_id as e_id
                 FROM loan l
                 JOIN equipment e ON l.e_id = e.e_id
                 WHERE l.status = 0
-            `, [currentTime, currentTime]);
+                AND e.status != 0
+                AND e.status != -1
+            `);
+            
             if (activeLoans.length > 0) {
                 const equipmentIds = activeLoans.map(row => row.e_id);
-                await db.promise().query('UPDATE equipment SET status = 0 WHERE e_id IN (?)', [equipmentIds]);
-                console.log(`Updated ${equipmentIds.length} equipment to in-use status`);
+                const result = await db.promise().query('UPDATE equipment SET status = 0 WHERE e_id IN (?)', [equipmentIds]);
+                
+                // Only log if rows were actually updated
+                if (result[0].affectedRows > 0) {
+                    console.log(`Updated ${result[0].affectedRows} equipment to in-use status`);
+                    console.log('Equipment IDs:', equipmentIds);
+                }
             }
         }
         catch(error) {
@@ -83,8 +101,12 @@ class UpdateStatusService {
         }
     }
 
-
     static startAutoUpdate(intervalMinutes = 5) {
+        // Run once immediately on startup
+        this.updateRoomStatus();
+        this.UpdateEquipmentStatus();
+        
+        // Then set interval for future updates
         setInterval(() => {
             this.updateRoomStatus();
             this.UpdateEquipmentStatus();
