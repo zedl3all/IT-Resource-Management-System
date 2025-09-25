@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const prevButton = document.getElementById('prev-image');
     const nextButton = document.getElementById('next-image');
     const logoutBtn = document.getElementById('logout-btn');
+    const searchInput = document.querySelector('.search-bar input');
     
     // ===== State =====
     let currentImageIndex = 0;
@@ -96,6 +97,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+    
+    // Search input handling
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
     
     // ===== Core Functions =====
     
@@ -263,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateStatCards(selector, stats) {
         const statCards = document.querySelectorAll(`${selector} .stat-card .stat-value`);
         if (statCards.length >= 3) {
-            statCards[0].textContent = stats.total;
-            statCards[1].textContent = stats.available || stats.pending;
+            statCards[0].textContent = stats.total || 0;
+            statCards[1].textContent = stats.available || stats.pending || 0;
             statCards[2].textContent = stats.booked || stats.inProgress || 0;
         }
     }
@@ -858,6 +864,117 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    
+    // Search handling
+    function handleSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        const activeSection = document.querySelector('.section.active');
+        
+        if (!activeSection) return;
+        
+        // ตรวจสอบว่ากำลังอยู่ที่หน้าไหน
+        if (activeSection.id === 'rooms') {
+            filterTable('#rooms-table tbody tr', searchTerm, [0, 1, 2]); // ค้นหาตามรหัสห้อง, ชื่อห้อง และรายละเอียด
+        } else if (activeSection.id === 'items') {
+            filterTable('#items-table tbody tr', searchTerm, [0, 1, 2]); // ค้นหาตามรหัสอุปกรณ์, ชื่ออุปกรณ์ และประเภท
+        } else if (activeSection.id === 'repairs') {
+            filterTable('#repairs-table tbody tr', searchTerm, [0, 1, 2, 3, 4]); // ค้นหาตามรหัสรายการ, อุปกรณ์, ปัญหา, ตำแหน่ง, และเจ้าหน้าที่
+        }
+    }
+    
+    // ฟังก์ชันกรองตาราง
+    function filterTable(selector, searchTerm, columnsToSearch) {
+        const rows = document.querySelectorAll(selector);
+        
+        rows.forEach(row => {
+            if (!searchTerm) {
+                // ถ้าไม่มีคำค้นหา แสดงทุกแถว
+                row.style.display = '';
+                return;
+            }
+            
+            let found = false;
+            
+            // ค้นหาในคอลัมน์ที่ระบุ
+            columnsToSearch.forEach(columnIndex => {
+                const cell = row.querySelector(`td:nth-child(${columnIndex + 1})`);
+                if (cell && cell.textContent.toLowerCase().includes(searchTerm)) {
+                    found = true;
+                }
+            });
+            
+            // ซ่อนหรือแสดงแถวตามผลการค้นหา
+            row.style.display = found ? '' : 'none';
+        });
+        
+        // อัปเดตสถิติให้ตรงกับผลการค้นหา
+        updateStatsAfterSearch();
+    }
+    
+    // อัปเดตสถิติหลังจากค้นหา
+    function updateStatsAfterSearch() {
+        const activeSection = document.querySelector('.section.active');
+        
+        if (!activeSection) return;
+        
+        if (activeSection.id === 'rooms') {
+            const visibleRooms = Array.from(document.querySelectorAll('#rooms-table tbody tr'))
+                .filter(row => row.style.display !== 'none');
+            
+            // แปลงข้อมูลให้เข้ากับฟอร์แมตของ updateRoomStats
+            const roomsData = visibleRooms.map(row => {
+                const statusClass = row.querySelector('td:nth-child(5) .status').className;
+                let status = STATUS_MAPPING.AVAILABLE; // ค่าเริ่มต้น
+                
+                if (statusClass.includes('booked')) status = STATUS_MAPPING.BOOKED;
+                else if (statusClass.includes('maintenance')) status = STATUS_MAPPING.MAINTENANCE;
+                
+                return { status };
+            });
+            
+            updateRoomStats(roomsData);
+        } 
+        else if (activeSection.id === 'items') {
+            const visibleItems = Array.from(document.querySelectorAll('#items-table tbody tr'))
+                .filter(row => row.style.display !== 'none');
+            
+            const itemsData = visibleItems.map(row => {
+                const statusClass = row.querySelector('td:nth-child(4) .status').className;
+                let status = STATUS_MAPPING.AVAILABLE;
+                
+                if (statusClass.includes('booked')) status = STATUS_MAPPING.BOOKED;
+                else if (statusClass.includes('maintenance')) status = STATUS_MAPPING.MAINTENANCE;
+                
+                return { status };
+            });
+            
+            updateEquipmentStats(itemsData);
+        } 
+        else if (activeSection.id === 'repairs') {
+            const visibleRepairs = Array.from(document.querySelectorAll('#repairs-table tbody tr'))
+                .filter(row => row.style.display !== 'none');
+            
+            const repairsData = visibleRepairs.map(row => {
+                const statusClass = row.querySelector('td:nth-child(7) .status').className;
+                let status = STATUS_MAPPING.PENDING;
+                
+                if (statusClass.includes('in-progress')) status = STATUS_MAPPING.IN_PROGRESS;
+                else if (statusClass.includes('completed')) status = STATUS_MAPPING.COMPLETED;
+                
+                return { status };
+            });
+            
+            updateRepairStats(repairsData);
+        }
+    }
+    
+    // เพิ่มกรณีสำหรับการล้างการค้นหา
+    document.querySelector('.fas.fa-search').addEventListener('click', function() {
+        if (searchInput.value) {
+            searchInput.value = '';
+            handleSearch();
+        }
+    });
     
     // Utility Functions
     function fetchData(url) {
