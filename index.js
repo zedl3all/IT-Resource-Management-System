@@ -12,6 +12,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
+// Routes
 const userRoutes = require('./routes/UserRoute');
 const roomRoutes = require('./routes/RoomRoute');
 const webRoutes = require('./routes/WebRoutes');
@@ -22,9 +23,6 @@ const imageRoutes = require('./routes/ImageRoute');
 const equipmentTypeRoutes = require('./routes/equipment-typesRoute');
 const errorRoute = require('./routes/ErrorRoute');
 
-// Auth Routes
-app.use('/auth', AuthRoute);
-
 // Routes
 // !Do not change the paths below, they should be plural
 app.use('/api/users', userRoutes);
@@ -34,6 +32,7 @@ app.use('/api/maintenances', maintenanceRoute);
 app.use('/api/images', imageRoutes);
 app.use('/api/equipment-types', equipmentTypeRoutes);
 app.use('/error', errorRoute);
+app.use('/auth', AuthRoute);
 app.use('/', webRoutes);
 
 // handle 404

@@ -48,29 +48,68 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch('/api/user/bookings')
             .then(response => response.json())
             .then(data => {
-                const container = document.getElementById('my-bookings-container');
-                container.innerHTML = '';
-
-                if (data.bookings && data.bookings.length > 0) {
-                    data.bookings.forEach(booking => {
+                // แยกข้อมูลการจองห้องและอุปกรณ์
+                const roomBookings = data.bookings.filter(booking => booking.room_id);
+                const equipmentBookings = data.bookings.filter(booking => booking.equipment_id);
+                
+                // แสดงข้อมูลการจองห้อง
+                const roomContainer = document.getElementById('my-room-bookings-container');
+                roomContainer.innerHTML = '';
+                
+                if (roomBookings.length > 0) {
+                    roomBookings.forEach(booking => {
                         const bookingElement = createBookingElement(booking);
-                        container.appendChild(bookingElement);
+                        roomContainer.appendChild(bookingElement);
                     });
-                    
-                    // Update stats
-                    updateBookingStats(data.bookings);
                 } else {
-                    container.innerHTML = `
+                    roomContainer.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-calendar"></i>
-                            <h3>ยังไม่มีการจอง</h3>
-                            <p>เริ่มต้นจองห้องหรืออุปกรณ์เพื่อดูรายการที่นี่</p>
+                            <i class="fas fa-door-open"></i>
+                            <h3>ยังไม่มีการจองห้อง</h3>
+                            <p>เลือกจองห้องเพื่อดูรายการที่นี่</p>
                         </div>
                     `;
                 }
+                
+                // แสดงข้อมูลการจองอุปกรณ์
+                const equipmentContainer = document.getElementById('my-equipment-bookings-container');
+                equipmentContainer.innerHTML = '';
+                
+                if (equipmentBookings.length > 0) {
+                    equipmentBookings.forEach(booking => {
+                        const bookingElement = createBookingElement(booking);
+                        equipmentContainer.appendChild(bookingElement);
+                    });
+                } else {
+                    equipmentContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-laptop"></i>
+                            <h3>ยังไม่มีการจองอุปกรณ์</h3>
+                            <p>เลือกจองอุปกรณ์เพื่อดูรายการที่นี่</p>
+                        </div>
+                    `;
+                }
+                
+                // Update stats ใช้ข้อมูลการจองทั้งหมด
+                updateBookingStats(data.bookings);
             })
             .catch(error => {
                 console.error('Error loading bookings:', error);
+                // แสดงข้อความเมื่อโหลดข้อมูลไม่สำเร็จ
+                const containers = [
+                    document.getElementById('my-room-bookings-container'),
+                    document.getElementById('my-equipment-bookings-container')
+                ];
+                
+                containers.forEach(container => {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>ไม่สามารถโหลดข้อมูลได้</h3>
+                            <p>โปรดลองอีกครั้งในภายหลัง</p>
+                        </div>
+                    `;
+                });
             });
     }
 
@@ -411,6 +450,66 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('ไม่สามารถแจ้งซ่อมได้');
         });
     });
+
+    // ฟังก์ชันสำหรับกรองการจอง
+    function filterBookings() {
+        const filterValue = document.getElementById('booking-filter').value;
+        const roomBookings = document.querySelectorAll('#my-room-bookings-container .booking-item');
+        const equipmentBookings = document.querySelectorAll('#my-equipment-bookings-container .booking-item');
+        
+        const allBookings = [...roomBookings, ...equipmentBookings];
+        
+        allBookings.forEach(booking => {
+            const statusElement = booking.querySelector('.booking-status');
+            const status = statusElement.classList.contains('active') ? 'active' : 
+                           statusElement.classList.contains('upcoming') ? 'upcoming' : 'completed';
+                          
+            if (filterValue === 'all' || status === filterValue) {
+                booking.style.display = '';
+            } else {
+                booking.style.display = 'none';
+            }
+        });
+        
+        // ตรวจสอบและแสดง empty state หากไม่มีรายการที่ตรงกับ filter
+        checkEmptyState('my-room-bookings-container', 'ไม่พบการจองห้องที่ตรงกับเงื่อนไข', 'door-open');
+        checkEmptyState('my-equipment-bookings-container', 'ไม่พบการจองอุปกรณ์ที่ตรงกับเงื่อนไข', 'laptop');
+    }
+
+    // ฟังก์ชันตรวจสอบและแสดง empty state
+    function checkEmptyState(containerId, message, iconName) {
+        const container = document.getElementById(containerId);
+        const visibleItems = Array.from(container.querySelectorAll('.booking-item'))
+            .filter(item => item.style.display !== 'none');
+            
+        // หากไม่มีรายการที่แสดง แต่มีรายการอยู่ (ถูกกรองออกหมด)
+        if (visibleItems.length === 0 && container.querySelectorAll('.booking-item').length > 0) {
+            // ซ่อนรายการทั้งหมด
+            container.querySelectorAll('.booking-item').forEach(item => {
+                item.style.display = 'none';
+            });
+            
+            // สร้าง empty state สำหรับการกรอง
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state filter-empty-state';
+            emptyState.innerHTML = `
+                <i class="fas fa-${iconName}"></i>
+                <h3>${message}</h3>
+                <p>ลองเปลี่ยนตัวกรองเพื่อดูรายการอื่น</p>
+            `;
+            container.appendChild(emptyState);
+        } 
+        // หากมีรายการที่แสดง ให้ลบ empty state ออก
+        else if (visibleItems.length > 0) {
+            const filterEmptyState = container.querySelector('.filter-empty-state');
+            if (filterEmptyState) {
+                filterEmptyState.remove();
+            }
+        }
+    }
+
+    // เพิ่ม event listener สำหรับตัวกรอง
+    document.getElementById('booking-filter').addEventListener('change', filterBookings);
 
     // Utility functions
     function formatDate(dateString) {
