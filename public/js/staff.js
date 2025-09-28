@@ -1324,6 +1324,33 @@ document.addEventListener('DOMContentLoaded', function () {
         initializeUserName(); // Set user name
     }
     
+    // Socket.IO client
+    const socket = window.io ? io() : null;
+    if (socket) {
+        socket.on('rooms:status-updated', () => {
+            const active = document.querySelector('.section.active');
+            if (!active || active.id === 'rooms') loadRooms();
+        });
+        socket.on('equipments:status-updated', () => {
+            const active = document.querySelector('.section.active');
+            if (!active || active.id === 'items') loadEquipments();
+        });
+        // +++ listen for create/update +++
+        socket.on('rooms:changed', () => {
+            const active = document.querySelector('.section.active');
+            if (!active || active.id === 'rooms') loadRooms();
+        });
+        socket.on('equipments:changed', () => {
+            const active = document.querySelector('.section.active');
+            if (!active || active.id === 'items') loadEquipments();
+        });
+        socket.on('maintenances:changed', () => {
+            const active = document.querySelector('.section.active');
+            if (!active || active.id === 'repairs') loadMaintenance();
+        });
+        // --- listen for create/update ---
+    }
+
     // Start the application
     initialize();
 });

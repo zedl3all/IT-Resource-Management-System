@@ -41,6 +41,10 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('rooms:changed', { action: 'create' });
+            // --- emit to clients ---
             res.status(201).json({ roomId });
         });
     },
@@ -52,6 +56,10 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('rooms:changed', { action: 'update', id: roomId });
+            // --- emit to clients ---
             res.json({
                 message: 'Room updated successfully',
                 details: results
@@ -65,6 +73,10 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('rooms:changed', { action: 'soft_delete', id: roomId });
+            // --- emit to clients ---
             res.json({
                 message: 'Room soft deleted successfully',
                 details: results
@@ -78,6 +90,10 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('rooms:changed', { action: 'restore', id: roomId });
+            // --- emit to clients ---
             res.json({
                 message: 'Room restored successfully',
                 details: results

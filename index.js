@@ -4,6 +4,8 @@ const app = express();
 const PORT = 3000;
 const path = require('path');
 const UpdateStatusService = require('./middleware/UpdateService');
+const http = require('http');
+const { Server } = require('socket.io');
 
 // Middleware
 app.use(express.json());
@@ -23,7 +25,6 @@ const imageRoutes = require('./routes/ImageRoute');
 const equipmentTypeRoutes = require('./routes/equipment-typesRoute');
 const errorRoute = require('./routes/ErrorRoute');
 
-// Routes
 // !Do not change the paths below, they should be plural
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
@@ -40,9 +41,23 @@ app.use((req, res, next) => {
     res.status(404).redirect('/error/404');
 });
 
-// Start the auto-update service
-UpdateStatusService.startAutoUpdate(1); // Update every 5 minutes
+// +++ Socket.IO server +++
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: { origin: '*' }
+});
+app.set('io', io);
 
-app.listen(PORT, () => {
+io.on('connection', (socket) => {
+    console.log('🔌 Socket connected:', socket.id);
+    socket.on('disconnect', () => console.log('🔌 Socket disconnected:', socket.id));
+});
+// --- Socket.IO server ---
+
+// Start the auto-update service
+// Pass io so the service can emit events
+UpdateStatusService.startAutoUpdate(io, 1); // every 1 minute
+
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

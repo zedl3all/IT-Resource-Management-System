@@ -41,6 +41,10 @@ const EquipmentController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('equipments:changed', { action: 'create' });
+            // --- emit to clients ---
             res.status(201).json({ equipmentId });
         });
     },
@@ -52,6 +56,10 @@ const EquipmentController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('equipments:changed', { action: 'update', id: equipmentId });
+            // --- emit to clients ---
             res.json({
                 message: 'Equipment updated successfully',
                 details: results
@@ -65,6 +73,10 @@ const EquipmentController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('equipments:changed', { action: 'soft_delete', id: equipmentId });
+            // --- emit to clients ---
             res.json({
                 message: 'Equipment soft deleted successfully',
                 details: results
@@ -78,6 +90,10 @@ const EquipmentController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('equipments:changed', { action: 'restore', id: equipmentId });
+            // --- emit to clients ---
             res.json({
                 message: 'Equipment restored successfully',
                 details: results

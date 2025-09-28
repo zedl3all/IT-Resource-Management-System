@@ -636,4 +636,39 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userName) {
         profileNameElem.textContent = userName;
     }
+
+    // Socket.IO client
+    const socket = window.io ? io() : null;
+    if (socket) {
+        socket.on('rooms:status-updated', () => {
+            const active = document.querySelector('.menu-item.active[data-section="rooms"]');
+            if (active) loadAvailableRooms();
+        });
+        socket.on('equipments:status-updated', () => {
+            const active = document.querySelector('.menu-item.active[data-section="equipment"]');
+            if (active) loadAvailableEquipment();
+        });
+        // +++ listen for create/update +++
+        socket.on('rooms:changed', () => {
+            const active = document.querySelector('.menu-item.active[data-section="rooms"]');
+            if (active) loadAvailableRooms();
+        });
+        socket.on('equipments:changed', () => {
+            const active = document.querySelector('.menu-item.active[data-section="equipment"]');
+            if (active) loadAvailableEquipment();
+        });
+        socket.on('maintenances:changed', () => {
+            // โหลดเฉพาะเมื่อผู้ใช้เปิดแท็บ "การจองของฉัน" เพื่ออัปเดตรายการแจ้งซ่อมของฉัน
+            const active = document.querySelector('.menu-item.active[data-section="bookings"]');
+            if (active) {
+                if (typeof loadMyMaintenanceRequests === 'function') {
+                    loadMyMaintenanceRequests();
+                }
+                if (typeof loadMyBookings === 'function') {
+                    loadMyBookings();
+                }
+            }
+        });
+        // --- listen for create/update ---
+    }
 });
