@@ -51,7 +51,7 @@ class UpdateStatusService {
         }
     }
 
-    static async UpdateEquipmentStatus() {
+    static async updateEquipmentStatus() {
         try {
             // หาก loan มีสถานะ 1 (คืนแล้ว) และอุปกรณ์ยังไม่ available
             const [returnedLoans] = await db.promise().query(`
@@ -62,17 +62,16 @@ class UpdateStatusService {
                 AND e.status != 1
                 AND e.status != -1
             `);
-            
+
             if (returnedLoans.length > 0) {
                 const equipmentIds = returnedLoans.map(row => row.e_id);
                 const [result] = await db.promise().query('UPDATE equipment SET status = 1 WHERE e_id IN (?)', [equipmentIds]);
                 if (result.affectedRows > 0) {
                     console.log(`Updated ${result.affectedRows} equipment back to available status`);
-                    console.log('Equipment IDs:', equipmentIds);
                     if (this.io) this.io.emit('equipments:status-updated', { ids: equipmentIds, status: 1 });
                 }
             }
-            
+
             // หาก loan มีสถานะ 0 (ยังไม่คืน) และอุปกรณ์ยังไม่ถูกตั้งเป็น in-use
             const [activeLoans] = await db.promise().query(`
                 SELECT DISTINCT e.e_id as e_id
@@ -82,36 +81,38 @@ class UpdateStatusService {
                 AND e.status != 0
                 AND e.status != -1
             `);
-            
+
             if (activeLoans.length > 0) {
                 const equipmentIds = activeLoans.map(row => row.e_id);
                 const [result] = await db.promise().query('UPDATE equipment SET status = 0 WHERE e_id IN (?)', [equipmentIds]);
                 if (result.affectedRows > 0) {
-                    console.log(`Updated ${result[0]?.affectedRows ?? result.affectedRows} equipment to in-use status`);
-                    console.log('Equipment IDs:', equipmentIds);
+                    console.log(`Updated ${result.affectedRows} equipment to in-use status`);
                     if (this.io) this.io.emit('equipments:status-updated', { ids: equipmentIds, status: 0 });
                 }
             }
-        }
-        catch(error) {
+        } catch (error) {
             console.error('Error updating equipment status:', error);
         }
     }
 
-    // Accept io and store it
+    // Backward-compatible alias (keeps existing callers working)
+    static async UpdateEquipmentStatus() {
+        return this.updateEquipmentStatus();
+    }
+
     static startAutoUpdate(io, intervalMinutes = 5) {
         this.io = io;
 
         // Run once immediately on startup
         this.updateRoomStatus();
-        this.UpdateEquipmentStatus();
-        
+        this.updateEquipmentStatus();
+
         // Then set interval for future updates
         setInterval(() => {
             this.updateRoomStatus();
-            this.UpdateEquipmentStatus();
+            this.updateEquipmentStatus();
         }, intervalMinutes * 60 * 1000);
-        
+
         console.log(`Auto-update service started. Running every ${intervalMinutes} minutes.`);
     }
 }

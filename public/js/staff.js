@@ -269,9 +269,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateStatCards(selector, stats) {
         const statCards = document.querySelectorAll(`${selector} .stat-card .stat-value`);
         if (statCards.length >= 3) {
-            statCards[0].textContent = stats.total || 0;
-            statCards[1].textContent = stats.available || stats.pending || 0;
-            statCards[2].textContent = stats.booked || stats.inProgress || 0;
+            const mid = (stats.available ?? stats.pending) ?? 0;
+            const last = (stats.booked ?? stats.inProgress) ?? 0;
+            statCards[0].textContent = stats.total ?? 0;
+            statCards[1].textContent = mid;
+            statCards[2].textContent = last;
         }
     }
     

@@ -1,5 +1,4 @@
 const path = require('path');
-const fs = require('fs');
 const ImageModel = require('../models/Image_Model');
 
 /**
@@ -13,29 +12,27 @@ class ImageController {
      */
     getImage(req, res) {
         try {
-            // Get image path from query parameter
             const imagePath = req.query.path;
-            
             if (!imagePath) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Image path is required'
+                    message: 'Missing query parameter: path'
                 });
             }
-            
+
             // Sanitize and validate path to prevent directory traversal
             const sanitizedPath = path.normalize(imagePath).replace(/^(\.\.(\/|\\|$))+/, '');
-            
+
             // Get full path to image
             const fullPath = ImageModel.getImagePath(sanitizedPath);
-            
+
             if (!fullPath) {
                 return res.status(404).json({
                     success: false,
                     message: 'Image not found'
                 });
             }
-            
+
             // Send the image
             return res.sendFile(fullPath);
         } catch (error) {
@@ -46,7 +43,7 @@ class ImageController {
             });
         }
     }
-    
+
     /**
      * List all images in a directory
      * @param {object} req - Express request object
@@ -54,19 +51,18 @@ class ImageController {
      */
     listImages(req, res) {
         try {
-            // Get directory path from query parameter (optional)
             const dirPath = req.query.directory || '';
-            
+
             // Sanitize and validate path to prevent directory traversal
-            const sanitizedPath = path.normalize(dirPath).replace(/^(\.\.(\/|\\|$))+/, '');
-            
-            // Get list of images in the directory
-            const images = ImageModel.listImages(sanitizedPath);
-            
+            const sanitizedDir = path.normalize(dirPath).replace(/^(\.\.(\/|\\|$))+/, '');
+
+            const images = ImageModel.listImages(sanitizedDir);
+
             return res.status(200).json({
                 success: true,
-                data: images,
-                count: images.length
+                directory: sanitizedDir,
+                count: images.length,
+                images
             });
         } catch (error) {
             console.error('Error listing images:', error);

@@ -14,7 +14,12 @@ class ImageModel {
      */
     imageExists(imagePath) {
         const fullPath = path.join(this.baseDir, imagePath);
-        return fs.existsSync(fullPath);
+        try {
+            const stat = fs.statSync(fullPath);
+            return stat.isFile();
+        } catch {
+            return false;
+        }
     }
 
     /**
@@ -34,21 +39,13 @@ class ImageModel {
      */
     listImages(dirPath = '') {
         const fullPath = path.join(this.baseDir, dirPath);
-        
         try {
-            if (!fs.existsSync(fullPath)) {
-                return [];
-            }
-            
-            const files = fs.readdirSync(fullPath);
-            
-            // Filter only image files (jpg, jpeg, png, gif)
+            if (!fs.existsSync(fullPath)) return [];
+            const files = fs.readdirSync(fullPath, { withFileTypes: true });
+            const exts = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
             return files
-                .filter(file => {
-                    const ext = path.extname(file).toLowerCase();
-                    return ['.jpg', '.jpeg', '.png', '.gif'].includes(ext);
-                })
-                .map(file => path.join(dirPath, file));
+                .filter(d => d.isFile() && exts.test(d.name))
+                .map(d => path.join(dirPath, d.name).replace(/\\/g, '/'));
         } catch (error) {
             console.error('Error listing images:', error);
             return [];
