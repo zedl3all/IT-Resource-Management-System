@@ -20,9 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (section.id === targetSection) {
                     section.classList.add('active');
                     console.log(`Switched to section: ${targetSection}`);
-                    
+
                     // Load data based on section
-                    switch(targetSection) {
+                    switch (targetSection) {
                         case 'bookings':
                             loadMyBookings();
                             break;
@@ -51,11 +51,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 // แยกข้อมูลการจองห้องและอุปกรณ์
                 const roomBookings = data.bookings.filter(booking => booking.room_id);
                 const equipmentBookings = data.bookings.filter(booking => booking.equipment_id);
-                
+
                 // แสดงข้อมูลการจองห้อง
                 const roomContainer = document.getElementById('my-room-bookings-container');
                 roomContainer.innerHTML = '';
-                
+
                 if (roomBookings.length > 0) {
                     roomBookings.forEach(booking => {
                         const bookingElement = createBookingElement(booking);
@@ -70,11 +70,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     `;
                 }
-                
+
                 // แสดงข้อมูลการจองอุปกรณ์
                 const equipmentContainer = document.getElementById('my-equipment-bookings-container');
                 equipmentContainer.innerHTML = '';
-                
+
                 if (equipmentBookings.length > 0) {
                     equipmentBookings.forEach(booking => {
                         const bookingElement = createBookingElement(booking);
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
                     `;
                 }
-                
+
                 // Update stats ใช้ข้อมูลการจองทั้งหมด
                 updateBookingStats(data.bookings);
             })
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.getElementById('my-room-bookings-container'),
                     document.getElementById('my-equipment-bookings-container')
                 ];
-                
+
                 containers.forEach(container => {
                     container.innerHTML = `
                         <div class="empty-state">
@@ -181,16 +181,38 @@ document.addEventListener('DOMContentLoaded', function () {
                 const tbody = document.querySelector('#available-rooms-table tbody');
                 tbody.innerHTML = '';
 
-                const availableRooms = data.rooms.filter(room => room.status === 1);
+                // const availableRooms = data.rooms.filter(room => room.status === 1);
+                const availableRooms = data.rooms; // แสดงห้องทั้งหมด
 
                 availableRooms.forEach(room => {
+
+                    // status 1 = available
+                    // status 0 = booked/in use
+                    // status -1 = maintenance
+
+                    switch (room.status) {
+                        case 1:
+                            room.statusText = 'ว่าง';
+                            room.statusClass = 'available';
+                            break;
+                        case 0:
+                            room.statusText = 'ถูกใช้งานอยู่';
+                            room.statusClass = 'booked';
+                            break;
+                        case -1:
+                            room.statusText = 'ซ่อมบำรุง';
+                            room.statusClass = 'maintenance';
+                            break;
+
+                    }
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${room.room_id}</td>
                         <td>${room.room_name}</td>
                         <td>${room.description}</td>
                         <td>${room.capacity} คน</td>
-                        <td><span class="status available">ว่าง</span></td>
+                        <td><span class="status ${room.statusClass}">${room.statusText}</span></td>
                         <td class="actions">
                             <button class="btn-book" data-room-id="${room.room_id}" data-room-name="${room.room_name}" data-room-description="${room.description}" data-room-capacity="${room.capacity}">
                                 <i class="fas fa-calendar-plus"></i> จอง
@@ -211,21 +233,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 const tbody = document.querySelector('#available-equipment-table tbody');
                 tbody.innerHTML = '';
 
-                const availableEquipment = data.equipments.filter(item => item.status === 1);
+                // แสดงอุปกรณ์ทั้งหมด ไม่กรองเฉพาะที่ว่าง
+                const allEquipment = data.equipments;
 
-                availableEquipment.forEach(item => {
+                allEquipment.forEach(item => {
                     const row = document.createElement('tr');
+
+                    console.log(item);
+
+                    // กำหนดสถานะตามค่า status
+                    let statusClass, statusText;
+                    switch (item.status) {
+                        case 1: // available
+                            statusClass = 'available';
+                            statusText = 'ว่าง';
+                            break;
+                        case 0: // booked/in use
+                            statusClass = 'booked';
+                            statusText = 'ถูกจอง';
+                            break;
+                        case -1: // maintenance
+                            statusClass = 'maintenance';
+                            statusText = 'ซ่อมบำรุง';
+                            break;
+                        default:
+                            statusClass = 'unknown';
+                            statusText = 'ไม่ทราบสถานะ';
+                    }
+
                     row.innerHTML = `
-                        <td>${item.equipment_id}</td>
-                        <td>${item.equipment_name}</td>
-                        <td>${item.type_name}</td>
-                        <td><span class="status available">ว่าง</span></td>
-                        <td class="actions">
-                            <button class="btn-book" data-equipment-id="${item.equipment_id}" data-equipment-name="${item.equipment_name}" data-equipment-type="${item.type_name}">
+                    <td>${item.e_id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.type_name}</td>
+                    <td><span class="status ${statusClass}">${statusText}</span></td>
+                    <td class="actions">
+                        ${item.status === 1 ? `
+                            <button class="btn-book" data-equipment-id="${item.e_id}" data-equipment-name="${item.name}" data-equipment-type="${item.type_name}">
                                 <i class="fas fa-calendar-plus"></i> จอง
                             </button>
-                        </td>
-                    `;
+                        ` : `
+                            <button class="btn-disabled" disabled>
+                                <i class="fas fa-calendar-times"></i> ไม่สามารถจองได้
+                            </button>
+                        `}
+                    </td>
+                `;
                     tbody.appendChild(row);
                 });
             })
@@ -243,9 +295,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.requests && data.requests.length > 0) {
                     data.requests.forEach(request => {
                         const row = document.createElement('tr');
-                        
+
                         let statusClass, statusText;
-                        switch(request.status) {
+                        switch (request.status) {
                             case 'pending':
                                 statusClass = 'pending';
                                 statusText = 'รอดำเนินการ';
@@ -298,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Event delegation for buttons
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         // Room booking
         if (e.target.closest('.btn-book') && e.target.closest('#available-rooms-table')) {
             const button = e.target.closest('.btn-book');
@@ -309,10 +361,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.getElementById('selected-room-name').textContent = `${roomName} (${roomId})`;
             document.getElementById('selected-room-details').textContent = `${roomDescription} - ความจุ: ${roomCapacity} คน`;
-            
+
             // Set hidden room ID
             document.getElementById('room-booking-form').setAttribute('data-room-id', roomId);
-            
+
             modals.roomBooking.style.display = 'block';
         }
 
@@ -325,10 +377,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             document.getElementById('selected-equipment-name').textContent = `${equipmentName} (${equipmentId})`;
             document.getElementById('selected-equipment-details').textContent = `ประเภท: ${equipmentType}`;
-            
+
             // Set hidden equipment ID
             document.getElementById('equipment-booking-form').setAttribute('data-equipment-id', equipmentId);
-            
+
             modals.equipmentBooking.style.display = 'block';
         }
 
@@ -350,11 +402,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Form submissions
-    document.getElementById('room-booking-form').addEventListener('submit', function(e) {
+    document.getElementById('room-booking-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const roomId = this.getAttribute('data-room-id');
-        
+
         const bookingData = {
             room_id: roomId,
             booking_date: formData.get('booking-date'),
@@ -368,27 +420,27 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookingData)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('จองห้องสำเร็จ!');
-                modals.roomBooking.style.display = 'none';
-                loadMyBookings();
-            } else {
-                alert('เกิดข้อผิดพลาด: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('ไม่สามารถจองห้องได้');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('จองห้องสำเร็จ!');
+                    modals.roomBooking.style.display = 'none';
+                    loadMyBookings();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('ไม่สามารถจองห้องได้');
+            });
     });
 
-    document.getElementById('equipment-booking-form').addEventListener('submit', function(e) {
+    document.getElementById('equipment-booking-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
         const equipmentId = this.getAttribute('data-equipment-id');
-        
+
         const bookingData = {
             equipment_id: equipmentId,
             booking_date: formData.get('equipment-booking-date'),
@@ -403,26 +455,26 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(bookingData)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('จองอุปกรณ์สำเร็จ!');
-                modals.equipmentBooking.style.display = 'none';
-                loadMyBookings();
-            } else {
-                alert('เกิดข้อผิดพลาด: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('ไม่สามารถจองอุปกรณ์ได้');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('จองอุปกรณ์สำเร็จ!');
+                    modals.equipmentBooking.style.display = 'none';
+                    loadMyBookings();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('ไม่สามารถจองอุปกรณ์ได้');
+            });
     });
 
-    document.getElementById('maintenance-form').addEventListener('submit', function(e) {
+    document.getElementById('maintenance-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
-        
+
         const maintenanceData = {
             equipment: formData.get('maintenance-equipment'),
             problem_description: formData.get('maintenance-problem'),
@@ -435,20 +487,20 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(maintenanceData)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('แจ้งซ่อมสำเร็จ!');
-                modals.maintenance.style.display = 'none';
-                loadMyMaintenanceRequests();
-            } else {
-                alert('เกิดข้อผิดพลาด: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('ไม่สามารถแจ้งซ่อมได้');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('แจ้งซ่อมสำเร็จ!');
+                    modals.maintenance.style.display = 'none';
+                    loadMyMaintenanceRequests();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('ไม่สามารถแจ้งซ่อมได้');
+            });
     });
 
     // ฟังก์ชันสำหรับกรองการจอง
@@ -456,21 +508,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const filterValue = document.getElementById('booking-filter').value;
         const roomBookings = document.querySelectorAll('#my-room-bookings-container .booking-item');
         const equipmentBookings = document.querySelectorAll('#my-equipment-bookings-container .booking-item');
-        
+
         const allBookings = [...roomBookings, ...equipmentBookings];
-        
+
         allBookings.forEach(booking => {
             const statusElement = booking.querySelector('.booking-status');
-            const status = statusElement.classList.contains('active') ? 'active' : 
-                           statusElement.classList.contains('upcoming') ? 'upcoming' : 'completed';
-                          
+            const status = statusElement.classList.contains('active') ? 'active' :
+                statusElement.classList.contains('upcoming') ? 'upcoming' : 'completed';
+
             if (filterValue === 'all' || status === filterValue) {
                 booking.style.display = '';
             } else {
                 booking.style.display = 'none';
             }
         });
-        
+
         // ตรวจสอบและแสดง empty state หากไม่มีรายการที่ตรงกับ filter
         checkEmptyState('my-room-bookings-container', 'ไม่พบการจองห้องที่ตรงกับเงื่อนไข', 'door-open');
         checkEmptyState('my-equipment-bookings-container', 'ไม่พบการจองอุปกรณ์ที่ตรงกับเงื่อนไข', 'laptop');
@@ -481,14 +533,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const container = document.getElementById(containerId);
         const visibleItems = Array.from(container.querySelectorAll('.booking-item'))
             .filter(item => item.style.display !== 'none');
-            
+
         // หากไม่มีรายการที่แสดง แต่มีรายการอยู่ (ถูกกรองออกหมด)
         if (visibleItems.length === 0 && container.querySelectorAll('.booking-item').length > 0) {
             // ซ่อนรายการทั้งหมด
             container.querySelectorAll('.booking-item').forEach(item => {
                 item.style.display = 'none';
             });
-            
+
             // สร้าง empty state สำหรับการกรอง
             const emptyState = document.createElement('div');
             emptyState.className = 'empty-state filter-empty-state';
@@ -498,7 +550,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p>ลองเปลี่ยนตัวกรองเพื่อดูรายการอื่น</p>
             `;
             container.appendChild(emptyState);
-        } 
+        }
         // หากมีรายการที่แสดง ให้ลบ empty state ออก
         else if (visibleItems.length > 0) {
             const filterEmptyState = container.querySelector('.filter-empty-state');
@@ -535,42 +587,42 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`/api/user/cancel-booking/${bookingId}?type=${type}`, {
             method: 'DELETE'
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('ยกเลิกการจองสำเร็จ!');
-                loadMyBookings();
-            } else {
-                alert('เกิดข้อผิดพลาด: ' + result.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('ไม่สามารถยกเลิกการจองได้');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('ยกเลิกการจองสำเร็จ!');
+                    loadMyBookings();
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('ไม่สามารถยกเลิกการจองได้');
+            });
     }
 
     // Logout functionality
-    document.getElementById('logout-btn').addEventListener('click', function(e) {
+    document.getElementById('logout-btn').addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         fetch('/auth/logout', {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' }
         })
-        .then(response => {
-            if (response.ok) {
-                alert('ออกจากระบบสำเร็จ');
-                window.location.href = '/'; // redirect ไปที่หน้า index
-            } else {
-                alert('เกิดข้อผิดพลาดในการออกจากระบบ');
-            }
-        })
-        .catch(error => {
-            console.error('Logout error:', error);
-            alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
-        });
+            .then(response => {
+                if (response.ok) {
+                    alert('ออกจากระบบสำเร็จ');
+                    window.location.href = '/'; // redirect ไปที่หน้า index
+                } else {
+                    alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+                }
+            })
+            .catch(error => {
+                console.error('Logout error:', error);
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+            });
     });
 
     // Load initial data
