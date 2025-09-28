@@ -203,7 +203,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             room.statusText = 'ซ่อมบำรุง';
                             room.statusClass = 'maintenance';
                             break;
-
+                        default:
+                            room.statusText = 'ไม่ทราบสถานะ';
+                            room.statusClass = 'unknown';
                     }
 
                     const row = document.createElement('tr');
