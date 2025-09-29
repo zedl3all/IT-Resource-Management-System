@@ -9,6 +9,7 @@ router.post('/', MaintenanceController.createMaintenance);
 router.put('/:id', MaintenanceController.updateMaintenance);
 router.delete('/:id', MaintenanceController.softDeleteMaintenance);
 router.post('/:id/restore', MaintenanceController.restoreMaintenance);
+router.get('/user/:userId', MaintenanceController.getMaintenancesByUserId);
 
 router.patch('/:id/updateStaffAndStatus', MaintenanceController.updateStaffAndStatus);
 

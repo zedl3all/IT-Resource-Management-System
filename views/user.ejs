@@ -203,6 +203,8 @@
                                 <th>รหัสรายการ</th>
                                 <th>อุปกรณ์</th>
                                 <th>รายละเอียดปัญหา</th>
+                                <th>ตำแหน่ง</th>
+                                <th>เจ้าหน้าที่</th>
                                 <th>วันที่แจ้ง</th>
                                 <th>สถานะ</th>
                                 <th>จัดการ</th>
@@ -344,6 +346,29 @@
                     <button type="submit" class="btn-save">แจ้งซ่อม</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div class="modal" id="image-viewer-modal">
+        <div class="modal-content image-viewer-content">
+            <div class="modal-header">
+                <h2 id="image-viewer-title">รูปภาพปัญหา</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="image-viewer-container">
+                <div class="main-image-container">
+                    <img id="main-image" src="" alt="รูปภาพปัญหา">
+                </div>
+                <div class="image-thumbnails" id="image-thumbnails">
+                    <!-- Thumbnails will be added here -->
+                </div>
+                <div class="image-navigation">
+                    <button id="prev-image" class="nav-button"><i class="fas fa-chevron-left"></i></button>
+                    <span id="image-counter">1/3</span>
+                    <button id="next-image" class="nav-button"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 

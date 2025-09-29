@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const {v4: uuidv4} = require('uuid');
+const { get } = require('../routes/RoomRoute');
 
 const broken_items = {
     getAll: (callback) => {
@@ -52,6 +53,13 @@ const broken_items = {
             callback(null, { request_id: id, staff_id, status });
         });
     },
+    getByUserId: (userId, callback) => {
+        const query = 'SELECT * FROM maintenance WHERE user_id = ? ';
+        db.query(query, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    }
     // no delete function for maintenance records
 }
 module.exports = broken_items;
