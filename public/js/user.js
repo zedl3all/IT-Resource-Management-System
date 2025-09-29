@@ -2,6 +2,10 @@
  * IT Resource Management System - User Dashboard
  * Main JavaScript file for user interface interactions
  */
+// TODO: จองห้อง
+// TODO: จองอุปกรณ์
+// TODO: แจ้งซ่อม
+
 document.addEventListener("DOMContentLoaded", function () {
     // ===== Constants & Configuration =====
     const STATUS_CONFIG = {
