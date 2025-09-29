@@ -49,6 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     localStorage.setItem("userName", result.user.name);
                 }
 
+                if(result.user.id){
+                    localStorage.setItem("userId", result.user.id);
+                }
+
                 alert("เข้าสู่ระบบสำเร็จ");
 
                 // Role-based redirection

@@ -120,7 +120,17 @@ const RoomController = {
             });
             res.json(bookings);
         });
-    }
+    },
+    getBookingsByUserId: (req, res) => {
+        const userId = req.params.userId;
+        Room.getBookingByUserId(userId, (err, bookings) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.json(bookings);
+        });
+    },
 }
 
 module.exports = RoomController;

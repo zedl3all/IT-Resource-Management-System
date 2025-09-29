@@ -2,14 +2,22 @@ const express = require('express');
 const router = express.Router();
 const RoomController = require('../controllers/Room_Controller');
 
+// List & search
 router.get('/', RoomController.getAllRooms);
-router.get('/:id', RoomController.getRoomById);
 router.get('/search/:keyword', RoomController.searchRooms);
+
+// User bookings MUST be before "/:id" to avoid being captured by it
+router.get('/user/:userId/bookings', RoomController.getBookingsByUserId);
+
+// Room bookings
+router.get('/:id/bookings/month', RoomController.getBookingsByRoomIdAndMonth);
+router.get('/:id/bookings', RoomController.getBookingsByRoomId);
+
+// Room CRUD
+router.get('/:id', RoomController.getRoomById);
 router.post('/', RoomController.createRoom);
 router.put('/:id', RoomController.updateRoom);
 router.delete('/:id', RoomController.softDeleteRoom);
 router.post('/:id/restore', RoomController.restoreRoom);
-router.get('/:id/bookings/month', RoomController.getBookingsByRoomIdAndMonth);
-router.get('/:id/bookings', RoomController.getBookingsByRoomId);
 
 module.exports = router;

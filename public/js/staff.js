@@ -1129,6 +1129,9 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(response => {
             if (response.ok) {
                 alert('ออกจากระบบสำเร็จ');
+                // ล้าง local storage
+                localStorage.clear();
+                // เปลี่ยนเส้นทางไปยังหน้าหลัก
                 window.location.href = '/';
             } else {
                 alert('เกิดข้อผิดพลาดในการออกจากระบบ');
