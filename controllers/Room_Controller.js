@@ -139,6 +139,10 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('rooms:changed', { action: 'create' });
+            // --- emit to clients ---
             res.status(201).json({ bookingId });
         });
     },
@@ -149,6 +153,10 @@ const RoomController = {
                 error: 'Internal server error',
                 details: err.message
             });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('rooms:changed', { action: 'cancel_booking' });
+            // --- emit to clients ---
             res.json({
                 message: 'Booking cancelled successfully',
                 details: results
@@ -157,7 +165,6 @@ const RoomController = {
     },
     checkRoomAvailability: (req, res) => {
         const { roomId, startDate, endDate } = req.query;
-
         Room.checkAvailability(roomId, startDate, endDate, (err, isAvailable) => {
             if (err) return res.status(500).json({
                 error: 'Internal server error',
