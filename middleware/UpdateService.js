@@ -53,12 +53,12 @@ class UpdateStatusService {
 
     static async updateEquipmentStatus() {
         try {
-            // หาก loan มีสถานะ 1 (คืนแล้ว) และอุปกรณ์ยังไม่ available
+            // หาก loan มีสถานะ 0 (คืนแล้ว) และอุปกรณ์ยังไม่ available
             const [returnedLoans] = await db.promise().query(`
                 SELECT DISTINCT e.e_id as e_id
                 FROM loan l
                 JOIN equipment e ON l.e_id = e.e_id
-                WHERE l.status = 1
+                WHERE l.status = 0
                 AND e.status != 1
                 AND e.status != -1
             `);
@@ -72,12 +72,12 @@ class UpdateStatusService {
                 }
             }
 
-            // หาก loan มีสถานะ 0 (ยังไม่คืน) และอุปกรณ์ยังไม่ถูกตั้งเป็น in-use
+            // หาก loan มีสถานะ 1 (ยังไม่คืน) และอุปกรณ์ยังไม่ถูกตั้งเป็น in-use
             const [activeLoans] = await db.promise().query(`
                 SELECT DISTINCT e.e_id as e_id
                 FROM loan l
                 JOIN equipment e ON l.e_id = e.e_id
-                WHERE l.status = 0
+                WHERE l.status = 1
                 AND e.status != 0
                 AND e.status != -1
             `);

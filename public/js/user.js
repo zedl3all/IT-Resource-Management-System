@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ACTIVE: "กำลังใช้งาน",
                 UPCOMING: "กำลังจะมาถึง",
                 COMPLETED: "เสร็จสิ้นแล้ว",
+                RETURNED: "คืนแล้ว"  // เพิ่มสถานะ "คืนแล้ว"
             }
         }
     };
@@ -810,8 +811,14 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const purpose = booking.purpose || "ไม่ระบุ";
         const showCancelButton = status.class === STATUS_CONFIG.CLASSES.UPCOMING;
-        // เพิ่มเงื่อนไขสำหรับแสดงปุ่มคืนอุปกรณ์
-        const showReturnButton = !isRoom && status.class === STATUS_CONFIG.CLASSES.ACTIVE;
+        
+        // แก้ไขเงื่อนไขสำหรับแสดงปุ่มคืนอุปกรณ์:
+        // 1. ต้องเป็นอุปกรณ์ (ไม่ใช่ห้อง)
+        // 2. สถานะต้องเป็น "กำลังใช้งาน"
+        // 3. loan.status ต้องไม่เท่ากับ 0
+        const showReturnButton = !isRoom && 
+                            status.class === STATUS_CONFIG.CLASSES.ACTIVE && 
+                            booking.status !== 0;
 
         bookingElement.innerHTML = `
             <div class="booking-header">
@@ -1042,6 +1049,15 @@ document.addEventListener("DOMContentLoaded", function () {
     function getBookingStatus(booking) {
         const now = new Date();
         let startTime, endTime;
+        
+        // กรณีเป็นการยืมอุปกรณ์ที่คืนแล้ว (loan.status = 0)
+        // status = 0 คือคืนแล้ว (returned) ในระบบยืมอุปกรณ์
+        if (!booking.room_id && booking.status === 0) {
+            return { 
+                class: STATUS_CONFIG.CLASSES.COMPLETED, 
+                text: STATUS_CONFIG.TEXT.BOOKING.RETURNED  // แสดง "คืนแล้ว" แทน
+            };
+        }
         
         // จัดการรูปแบบวันที่ที่หลากหลาย
         if (booking.start_time) {
