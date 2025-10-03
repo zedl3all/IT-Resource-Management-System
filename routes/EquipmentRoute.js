@@ -11,5 +11,6 @@ router.delete('/:id', EquipmentController.softDeleteEquipment);
 router.post('/:id/restore', EquipmentController.restoreEquipment);
 router.get('/:equipmentId/loans', EquipmentController.getLoanByEquipmentId);
 router.get('/user/:userId/loans', EquipmentController.getLoanByUserId);
+router.post('/:id/loans', EquipmentController.createLoan);
 
 module.exports = router;

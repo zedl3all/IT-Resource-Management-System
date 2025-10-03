@@ -191,5 +191,114 @@ const Equipment = {
             callback(null, results);
         });
     },
-}
+    createLoan: (data, callback) => {
+        console.log('Creating loan with data:', data);
+        
+        // แปลงรูปแบบวันที่และเวลาให้เป็น datetime string
+        const borrowDT = `${data.booking_date}T${data.booking_time}:00`;
+        const returnDT = `${data.return_date}T${data.return_time}:00`;
+        
+        // 1. ตรวจสอบสถานะอุปกรณ์ว่าพร้อมให้ยืมหรือไม่
+        const checkEquipmentQuery = `SELECT status FROM equipment WHERE e_id = ? AND is_deleted = 0`;
+        db.query(checkEquipmentQuery, [data.equipment_id], (err, equipmentResults) => {
+            if (err) return callback(err);
+            if (equipmentResults.length === 0) {
+                return callback(new Error('ไม่พบอุปกรณ์'));
+            }
+            if (parseInt(equipmentResults[0].status) !== 1) {
+                return callback(new Error('อุปกรณ์ไม่พร้อมให้ยืม'));
+            }
+
+            // 2. ตรวจสอบว่าผู้ใช้ยืมอุปกรณ์ชิ้นนี้อยู่หรือไม่
+            const checkQuery = `SELECT * FROM loan 
+                                WHERE e_id = ? AND user_id = ? AND status = 1`;
+            db.query(checkQuery, [data.equipment_id, data.user_id], (err, results) => {
+                if (err) return callback(err);
+                if (results.length > 0) {
+                    // ถ้ามีการยืมอยู่แล้ว
+                    return callback(new Error('คุณได้ยืมอุปกรณ์นี้อยู่แล้ว'));
+                }
+
+                // 3. ตรวจสอบว่าช่วงเวลาที่จะยืมซ้อนทับกับการยืมอื่นหรือไม่
+                const checkTimeQuery = `
+                    SELECT COUNT(*) AS conflict_count
+                    FROM loan
+                    WHERE e_id = ? AND status = 1
+                    AND (
+                        (? BETWEEN borrow_DT AND return_DT) OR
+                        (? BETWEEN borrow_DT AND return_DT) OR
+                        (borrow_DT BETWEEN ? AND ?) OR
+                        (return_DT BETWEEN ? AND ?)
+                    )
+                `;
+                db.query(checkTimeQuery, [
+                    data.equipment_id, 
+                    borrowDT, returnDT, 
+                    borrowDT, returnDT,
+                    borrowDT, returnDT
+                ], (err, timeResults) => {
+                    if (err) return callback(err);
+                    if (timeResults[0].conflict_count > 0) {
+                        return callback(new Error('อุปกรณ์ถูกจองในช่วงเวลาที่เลือกแล้ว'));
+                    }
+
+                    // 4. เริ่ม Transaction สำหรับการยืมและอัพเดทสถานะอุปกรณ์
+                    db.beginTransaction((err) => {
+                        if (err) return callback(err);
+
+                        // 4.1 บันทึกการยืม
+                        const query = `INSERT INTO loan (e_id, user_id, borrow_DT, return_DT, purpose, status) 
+                                    VALUES (?, ?, ?, ?, ?, ?)`;
+                        const values = [
+                            data.equipment_id, 
+                            data.user_id, 
+                            borrowDT, 
+                            returnDT, 
+                            data.purpose || 'ไม่ระบุวัตถุประสงค์',
+                            0  // status 0 = ยืมอยู่
+                        ];
+
+                        db.query(query, values, (err, insertResults) => {
+                            if (err) {
+                                return db.rollback(() => {
+                                    callback(err);
+                            });
+                        }
+
+                            // 4.2 อัพเดทสถานะอุปกรณ์เป็น "ถูกยืม" (status = 0)
+                            const updateEquipmentQuery = `UPDATE equipment SET status = 0 WHERE e_id = ?`;
+                            db.query(updateEquipmentQuery, [data.equipment_id], (err, updateResults) => {
+                                if (err) {
+                                    return db.rollback(() => {
+                                        callback(err);
+                                    });
+                                }
+
+                                // 4.3 Commit Transaction
+                                db.commit((err) => {
+                                    if (err) {
+                                        return db.rollback(() => {
+                                            callback(err);
+                                        });
+                                    }
+                                    callback(null, {
+                                        id: insertResults.insertId,
+                                        message: 'บันทึกการยืมสำเร็จ',
+                                        data: {
+                                            e_id: data.equipment_id,
+                                            user_id: data.user_id,
+                                            borrow_DT: borrowDT,
+                                            return_DT: returnDT,
+                                            purpose: data.purpose
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
+};
 module.exports = Equipment;

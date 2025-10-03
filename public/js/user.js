@@ -2,7 +2,6 @@
  * IT Resource Management System - User Dashboard
  * Main JavaScript file for user interface interactions
  */
-// TODO: จองอุปกรณ์
 // TODO: แจ้งซ่อม
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -403,6 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const equipmentId = this.getAttribute("data-equipment-id");
 
         const bookingData = {
+            user_id: localStorage.getItem("userId"),
             equipment_id: equipmentId,
             booking_date: formData.get("equipment-booking-date"),
             booking_time: formData.get("equipment-booking-time"),
@@ -411,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
             purpose: formData.get("equipment-purpose"),
         };
 
-        submitBooking("/api/user/book-equipment", bookingData, "จองอุปกรณ์", 
+        submitBooking(`/api/equipments/${equipmentId}/loans`, bookingData, "จองอุปกรณ์", 
                       elements.modals.equipmentBooking, loadMyBookings);
     }
 
@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
         apiPost(url, data)
             .then(result => {
                 console.log(result);
-                if (result.bookingId.status == "success" || result.success) {
+                if (result.bookingId.status == "success" || result.success || result.message == "Loan created successfully") {
                     showNotification(`${actionName}สำเร็จ!`);
                     if (modal) modal.style.display = "none";
                     if (callback) callback();

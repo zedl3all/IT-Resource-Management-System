@@ -119,6 +119,20 @@ const EquipmentController = {
             });
             res.status(200).json({ loans });
         });
+    },
+    createLoan: (req, res) => {
+        const loanData = req.body;
+        Equipment.createLoan(loanData, (err, result) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('loans:changed', { action: 'create' });
+            // --- emit to clients ---
+            res.status(201).json({ message: 'Loan created successfully', loanId: result.insertId });
+        });
     }
-}
+};
 module.exports = EquipmentController;
