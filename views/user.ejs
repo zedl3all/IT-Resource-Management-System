@@ -236,12 +236,22 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="booking-start-datetime">วันและเวลาที่เริ่มต้น</label>
-                    <input type="datetime-local" id="booking-start-datetime" name="booking-start-datetime" required>
+                    <label for="booking-date">วันที่จอง</label>
+                    <input type="date" id="booking-date" name="booking-date" required>
                 </div>
-                <div class="form-group">
-                    <label for="booking-end-datetime">วันและเวลาที่สิ้นสุด</label>
-                    <input type="datetime-local" id="booking-end-datetime" name="booking-end-datetime" required>
+                <div class="form-time-group">
+                    <div class="form-group half">
+                        <label for="booking-start-time">เวลาเริ่มต้น</label>
+                        <input type="time" id="booking-start-time" name="booking-start-time" required>
+                    </div>
+                    <div class="form-group half">
+                        <label for="booking-end-time">เวลาสิ้นสุด</label>
+                        <input type="time" id="booking-end-time" name="booking-end-time" required>
+                    </div>
+                </div>
+                <div class="form-note">
+                    <i class="fas fa-info-circle"></i> 
+                    หมายเหตุ: การจองสามารถข้ามวันได้ โดยระบุเวลาสิ้นสุดมากกว่าเวลาเริ่มต้น เช่น จาก 23:00 น. ถึง 01:00 น.
                 </div>
                 <div class="form-group">
                     <label for="booking-purpose">วัตถุประสงค์</label>
@@ -372,5 +382,7 @@
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/user.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns-tz@2.0.0/index.min.js"></script>
 </body>
 </html>

@@ -310,3 +310,91 @@ input[type="datetime-local"]:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
+
+/* เพิ่ม CSS สำหรับคำอธิบายและรูปแบบเวลา */
+.form-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.form-note {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: var(--border-radius);
+    margin: 10px 0 20px;
+    font-size: 0.9rem;
+    color: #495057;
+    border-left: 3px solid var(--primary-color);
+}
+
+.form-note i {
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+
+/* บังคับให้ input type="time" แสดงผลในรูปแบบ 24 ชั่วโมง */
+input[type="time"] {
+    font-family: monospace; /* ช่วยให้ตัวเลขมีความกว้างเท่ากัน */
+}
+
+/* บังคับให้ input type="datetime-local" แสดงในรูปแบบ 24 ชั่วโมง */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    color: transparent;
+    cursor: pointer;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+}
+
+/* ปรับแต่ง datetime input สำหรับการอ่าน */
+input[type="datetime-local"] {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    appearance: textfield;
+    -webkit-appearance: textfield;
+    min-height: 38px;
+    padding: 4px 8px;
+}
+
+/* ซ่อน dropdown arrow ใน Firefox */
+input[type="datetime-local"]::-webkit-inner-spin-button,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+}
+
+/* แสดงช่องเวลาเริ่มต้นและสิ้นสุดในแถวเดียวกัน */
+.form-time-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group.half {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* ปรับรูปแบบ input สำหรับวันที่และเวลา */
+input[type="date"], 
+input[type="time"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+input[type="date"]:focus, 
+input[type="time"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}

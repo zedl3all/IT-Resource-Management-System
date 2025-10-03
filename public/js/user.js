@@ -2,7 +2,6 @@
  * IT Resource Management System - User Dashboard
  * Main JavaScript file for user interface interactions
  */
-// TODO: ยกเลิกการจอง
 // TODO: จองอุปกรณ์
 // TODO: แจ้งซ่อม
 
@@ -112,6 +111,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     newEndTime.toISOString().slice(0, 16);
             }
         });
+        
+        // การเปลี่ยนแปลงวันที่หรือเวลา
+        document.getElementById('booking-date')?.addEventListener('change', validateBookingTimes);
+        document.getElementById('booking-start-time')?.addEventListener('change', validateBookingTimes);
+        document.getElementById('booking-end-time')?.addEventListener('change', validateBookingTimes);
     }
 
     function setupModalEvents() {
@@ -240,26 +244,43 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function setDefaultBookingTimes() {
-        // ตั้งค่าเริ่มต้นให้เวลาเริ่มต้นเป็นเวลาปัจจุบัน (ปัดเป็นชั่วโมงถัดไป)
+        // สร้าง Date object สำหรับเวลาปัจจุบัน
         const now = new Date();
         
-        // เริ่มต้น: ปัดเวลาเป็นชั่วโมงถัดไป
+        // ตั้งค่าวันที่เป็นวันปัจจุบัน
+        const bookingDateInput = document.getElementById('booking-date');
+        const dateString = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        if (bookingDateInput) bookingDateInput.value = dateString;
+        if (bookingDateInput) bookingDateInput.min = dateString; // ไม่อนุญาตให้เลือกวันในอดีต
+        
+        // คำนวณเวลาเริ่มต้น (ปัดเป็นชั่วโมงถัดไป)
         const startTime = new Date(now);
-        startTime.setHours(now.getHours() + 1);
+        if (now.getMinutes() >= 50) {
+            // ถ้าเหลือเวลาในชั่วโมงน้อยกว่า 10 นาที ข้ามไปอีก 2 ชั่วโมง
+            startTime.setHours(now.getHours() + 2);
+        } else {
+            // ปกติข้ามไปชั่วโมงถัดไป
+            startTime.setHours(now.getHours() + 1);
+        }
         startTime.setMinutes(0);
         startTime.setSeconds(0);
         
-        // สิ้นสุด: เวลาเริ่มต้น + 1 ชั่วโมง
+        // สิ้นสุด: เวลาเริ่มต้น + 2 ชั่วโมง
         const endTime = new Date(startTime);
-        endTime.setHours(startTime.getHours() + 1);
+        endTime.setHours(startTime.getHours() + 2);
         
-        // แปลงเป็นรูปแบบ ISO string และตัดส่วน timezone และวินาที
-        const startLocalDT = startTime.toISOString().slice(0, 16);
-        const endLocalDT = endTime.toISOString().slice(0, 16);
+        // รูปแบบเวลา HH:MM
+        const formatTimeForInput = (date) => {
+            return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        };
         
-        // กำหนดค่าให้กับอินพุต
-        document.getElementById('booking-start-datetime').value = startLocalDT;
-        document.getElementById('booking-end-datetime').value = endLocalDT;
+        const startTimeInput = document.getElementById('booking-start-time');
+        const endTimeInput = document.getElementById('booking-end-time');
+        
+        if (startTimeInput && endTimeInput) {
+            startTimeInput.value = formatTimeForInput(startTime);
+            endTimeInput.value = formatTimeForInput(endTime);
+        }
     }
 
     function handleEquipmentBookingButton(button) {
@@ -292,23 +313,86 @@ document.addEventListener("DOMContentLoaded", function () {
         const roomId = this.getAttribute("data-room-id");
         const userId = localStorage.getItem("userId");
 
-        // รับค่าจาก datetime-local
-        const startDateTime = formData.get("booking-start-datetime");
-        const endDateTime = formData.get("booking-end-datetime");
-
+        // รับค่าจากฟอร์ม
+        const bookingDate = formData.get("booking-date");
+        const startTime = formData.get("booking-start-time");
+        const endTime = formData.get("booking-end-time");
+        
+        // สร้าง Date object สำหรับคำนวณ
+        const now = new Date();
+        const startDateTime = new Date(`${bookingDate}T${startTime}`);
+        let endDateTime = new Date(`${bookingDate}T${endTime}`);
+        
+        // ตรวจสอบกรณีจองข้ามวัน (เวลาสิ้นสุดน้อยกว่าเวลาเริ่มต้น)
+        if (endTime < startTime) {
+            // ถ้าเวลาสิ้นสุดน้อยกว่าเวลาเริ่ม ให้ปรับเป็นวันถัดไป
+            const nextDay = new Date(bookingDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            const nextDayString = nextDay.toISOString().split('T')[0]; // YYYY-MM-DD
+            endDateTime = new Date(`${nextDayString}T${endTime}`);
+        }
+        
+        console.log("เวลาปัจจุบัน:", now);
+        console.log("เวลาเริ่มต้น:", startDateTime);
+        console.log("เวลาสิ้นสุด:", endDateTime);
+        
         // ตรวจสอบความถูกต้องของข้อมูล
-        if (new Date(startDateTime) >= new Date(endDateTime)) {
+        if (startDateTime >= endDateTime) {
             showNotification("เวลาเริ่มต้นต้องมาก่อนเวลาสิ้นสุด", "error");
             return;
         }
+        
+        // ตรวจสอบว่าเวลาเริ่มต้นต้องไม่อยู่ในอดีต
+        if (startDateTime < now) {
+            showNotification("ไม่สามารถจองย้อนหลังได้ กรุณาเลือกเวลาในอนาคต", "error");
+            return;
+        }
+        
+        // คำนวณระยะเวลาการจองเป็นนาที
+        const durationMinutes = (endDateTime - startDateTime) / (1000 * 60);
+        
+        // ตรวจสอบระยะเวลาการจอง (ขั้นต่ำ 30 นาที และสูงสุด 24 ชั่วโมง)
+        if (durationMinutes < 30) {
+            showNotification("การจองต้องมีระยะเวลาอย่างน้อย 30 นาที", "error");
+            return;
+        }
+        
+        if (durationMinutes > 24 * 60) {
+            showNotification("การจองต้องไม่เกิน 24 ชั่วโมง", "error");
+            return;
+        }
+
+        // แทนที่จะใช้ import libraries แบบ ES modules
+        // ให้สร้างวิธีแก้ไขปัญหา timezone ด้วยวิธีด้านล่างนี้แทน
+    
+        // แปลงเวลาท้องถิ่นให้เป็นเวลา UTC+7
+        function convertToUTC(localDate) {
+            const utcDate = new Date(localDate);
+            // ปรับ timezone offset เพื่อให้เป็น UTC+7 (ประเทศไทย)
+            // ตั้งค่า timezone ให้ชัดเจน โดยไม่ปรับ offset เพื่อให้เก็บเวลาตามที่ผู้ใช้เลือกจริงๆ
+            const thaiTime = new Date(utcDate.getTime());
+            
+            // อาจต้องการ comment บรรทัดด้านล่างเพื่อไม่ให้ toISOString ปรับเป็น UTC อัตโนมัติ
+            // แต่ตอนนี้เราต้องการให้เก็บเวลาตามที่ผู้ใช้เห็นจริงๆ
+            return thaiTime;
+        }
+    
+        // แปลงเป็น ISO string ที่เป็น UTC+7
+        const startDateTimeIso = toThaiISOString(startDateTime);
+        const endDateTimeIso = toThaiISOString(endDateTime);
 
         const bookingData = {
             room_id: roomId,
             user_id: userId,
-            start_time: startDateTime,  // ส่งวันเวลาเริ่มต้นทั้งหมด
-            end_time: endDateTime,      // ส่งวันเวลาสิ้นสุดทั้งหมด
+            start_time: startDateTimeIso,
+            end_time: endDateTimeIso,
             purpose: formData.get("booking-purpose"),
         };
+
+        // เพิ่ม debug logs
+        console.log("ข้อมูลการจอง:", bookingData);
+        console.log("เวลาที่แสดงใน UI - เริ่มต้น:", startDateTime.toLocaleString('th-TH'));
+        console.log("เวลาที่แสดงใน UI - สิ้นสุด:", endDateTime.toLocaleString('th-TH'));
 
         submitBooking(`/api/rooms/${roomId}/bookings`, bookingData, "จองห้อง", elements.modals.roomBooking, loadMyBookings);
     }
@@ -677,11 +761,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const status = getBookingStatus(booking);
         const isRoom = booking.room_id ? true : false;
         const itemName = isRoom ? booking.room_name : booking.equipment_name;
-        const bookingDate = formatDate(booking.booking_date || booking.start_time || booking.borrow_DT);
-        const startDate = formatDate(booking.start_time || booking.borrow_DT);
-        const endDate = formatDate(booking.end_time || booking.return_DT);
-        const startTime = formatTime(booking.start_time || booking.borrow_DT);
-        const endTime = formatTime(booking.end_time || booking.return_DT);
+        
+        // แปลงเป็น Date object
+        const startDate = new Date(booking.start_time || booking.borrow_DT);
+        const endDate = new Date(booking.end_time || booking.return_DT);
+        
+        // จัดรูปแบบวันที่และเวลา
+        const formatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
+        const startDateStr = startDate.toLocaleDateString("th-TH", formatOptions);
+        const endDateStr = endDate.toLocaleDateString("th-TH", formatOptions);
+        
+        // จัดรูปแบบเวลาแบบ 24 ชั่วโมง (00:00 - 24:00)
+        const startTimeStr = `${startDate.getHours().toString().padStart(2, '0')}:${startDate.getMinutes().toString().padStart(2, '0')}`;
+        const endTimeStr = `${endDate.getHours().toString().padStart(2, '0')}:${endDate.getMinutes().toString().padStart(2, '0')}`;
+        
+        // สร้างข้อความแสดงเวลา - กรณีจองข้ามวัน จะแสดงวันที่ด้วย
+        const timeDisplay = isSameDay(startDate, endDate) 
+            ? `${startTimeStr} - ${endTimeStr} น.` 
+            : `${startDateStr} ${startTimeStr} น. - ${endDateStr} ${endTimeStr} น.`;
+    
         const purpose = booking.purpose || "ไม่ระบุ";
         const showCancelButton = status.class === STATUS_CONFIG.CLASSES.UPCOMING;
 
@@ -697,13 +795,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="booking-details">
                     <div class="booking-detail">
                         <i class="fas fa-calendar"></i>
-                        <span>วันที่: <b>${bookingDate}</b></span>
+                        <span>วันที่จอง: <b>${startDate.toLocaleDateString("th-TH")}</b></span>
                     </div>
                     <div class="booking-detail">
                         <i class="fas fa-clock"></i>
-                        <span>วันที่: <b>${startDate}</b> เวลา: <b>${startTime}</b> ถึง
-                              วันที่: <b>${endDate}</b> เวลา: <b>${endTime}</b>
-                        </span>
+                        <span>เวลา: <b>${timeDisplay}</b></span>
                     </div>
                     <div class="booking-detail">
                         <i class="fas fa-clipboard"></i>
@@ -905,30 +1001,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function getBookingStatus(booking) {
         const now = new Date();
-        const startDateStr = booking.booking_date || booking.start_time || booking.borrow_DT;
-        const endDateStr = booking.end_time || booking.return_DT;
+        let startTime, endTime;
         
-        // Handle missing dates
-        if (!startDateStr || !endDateStr) {
+        // จัดการรูปแบบวันที่ที่หลากหลาย
+        if (booking.start_time) {
+            startTime = new Date(booking.start_time);
+            endTime = new Date(booking.end_time);
+            
+            // ตรวจสอบว่าเป็นรูปแบบ UTC หรือไม่
+            if (booking.start_time.includes('Z')) {
+                // ถ้าเป็น UTC ให้แปลงเป็นเวลาไทย
+                startTime.setHours(startTime.getHours() + 7);
+                endTime.setHours(endTime.getHours() + 7);
+            }
+        } else if (booking.borrow_DT) {
+            startTime = new Date(booking.borrow_DT);
+            endTime = new Date(booking.return_DT);
+        } else if (booking.booking_date && booking.booking_time) {
+            // รูปแบบแยกวันที่และเวลา
+            const startDateStr = `${booking.booking_date}T${booking.booking_time}`;
+            const endDateStr = booking.return_date ? 
+                `${booking.return_date}T${booking.return_time}` : 
+                `${booking.booking_date}T${booking.return_time}`;
+                
+            startTime = new Date(startDateStr);
+            endTime = new Date(endDateStr);
+        } else {
+            // กรณีไม่มีข้อมูลวันเวลาเพียงพอ
             return { 
                 class: STATUS_CONFIG.CLASSES.UPCOMING, 
                 text: STATUS_CONFIG.TEXT.BOOKING.UPCOMING 
             };
         }
 
-        let startTime, endTime;
-        
-        // Handle different date formats
-        if (startDateStr.includes('T')) {
-            startTime = new Date(startDateStr);
-            endTime = new Date(endDateStr);
-        } else {
-            // Format: YYYY-MM-DD HH:MM:SS
-            startTime = new Date(`${booking.booking_date}T${booking.start_time}`);
-            endTime = new Date(`${booking.booking_date}T${booking.end_time}`);
-        }
-
-        // Determine status
+        // กำหนดสถานะตามช่วงเวลาปัจจุบัน
         if (now >= startTime && now <= endTime) {
             return { 
                 class: STATUS_CONFIG.CLASSES.ACTIVE, 
@@ -1025,18 +1131,31 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!timeString) return "ไม่ระบุ";
 
         try {
-            // For ISO date format or timestamp
+            // แปลงเป็น Date object
+            let date;
+            
             if (timeString.includes("T") || timeString.includes("Z")) {
-                const date = new Date(timeString);
-                return date.toLocaleTimeString("th-TH", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false
-                });
+                date = new Date(timeString);
+                
+                // ถ้าเป็นเวลา UTC (มี Z) ให้ปรับเป็นเวลาประเทศไทย
+                if (timeString.includes('Z')) {
+                    // บวกเวลาเพิ่ม 7 ชั่วโมงเพื่อให้เป็นเวลาไทย
+                    date.setHours(date.getHours() + 7);
+                }
+            } else if (timeString.includes(":")) {
+                // รูปแบบ HH:MM:SS หรือ HH:MM
+                const parts = timeString.split(":");
+                date = new Date();
+                date.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10));
+            } else {
+                return timeString; // กรณีไม่สามารถแปลงได้ คืนค่าเดิม
             }
-
-            // For HH:MM:SS format
-            return timeString.substring(0, 5); // Just take HH:MM
+            
+            // จัดรูปแบบเวลาเป็น 24 ชั่วโมง
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${hours}:${minutes}`;
         } catch (e) {
             console.error("Error formatting time:", e);
             return "รูปแบบเวลาไม่ถูกต้อง";
@@ -1049,9 +1168,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function cancelBooking(bookingId, type) {
-        apiPost(`/api/user/cancel-booking/${bookingId}?type=${type}`, {}, "DELETE")
+        apiPost(`/api/rooms/cancel-booking/${bookingId}`, {}, "DELETE")
             .then(result => {
-                if (result.success) {
+                console.log(result);
+                if (result.details.status == "cancelled" || result.success) {
                     showNotification("ยกเลิกการจองสำเร็จ!");
                     loadMyBookings();
                 } else {
@@ -1062,5 +1182,62 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.error("Error:", error);
                 showNotification("ไม่สามารถยกเลิกการจองได้", "error");
             });
+    }
+
+    // เพิ่มฟังก์ชันตรวจสอบว่าเป็นวันเดียวกันหรือไม่
+    function isSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    }
+
+    function validateBookingTimes() {
+        const dateInput = document.getElementById('booking-date');
+        const startTimeInput = document.getElementById('booking-start-time');
+        const endTimeInput = document.getElementById('booking-end-time');
+        
+        if (!dateInput || !startTimeInput || !endTimeInput) return;
+        
+        // ตรวจสอบว่าผู้ใช้ได้กรอกข้อมูลครบหรือไม่
+        if (!dateInput.value || !startTimeInput.value || !endTimeInput.value) return;
+        
+        const startDateTime = new Date(`${dateInput.value}T${startTimeInput.value}`);
+        const now = new Date();
+        
+        // ตรวจสอบว่าเวลาเริ่มต้นต้องไม่อยู่ในอดีต
+        if (startDateTime < now) {
+            showNotification("ไม่สามารถจองย้อนหลังได้ กรุณาเลือกเวลาในอนาคต", "error");
+            
+            // ตั้งค่าเวลาเริ่มต้นใหม่เป็นเวลาปัจจุบัน (ปัดไปชั่วโมงถัดไป)
+            const newStartTime = new Date(now);
+            newStartTime.setHours(now.getHours() + 1);
+            newStartTime.setMinutes(0);
+            
+            startTimeInput.value = `${newStartTime.getHours().toString().padStart(2, '0')}:${newStartTime.getMinutes().toString().padStart(2, '0')}`;
+        }
+        
+        // ตรวจสอบว่าเวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้น (หรือเป็นวันถัดไป)
+        if (startTimeInput.value >= endTimeInput.value && !confirm("เวลาสิ้นสุดน้อยกว่าเวลาเริ่มต้น ต้องการจองข้ามวันหรือไม่?")) {
+            // ถ้าผู้ใช้ไม่ต้องการจองข้ามวัน ให้กำหนดเวลาสิ้นสุดเป็นเวลาเริ่มต้น + 1 ชั่วโมง
+            const [startHours, startMinutes] = startTimeInput.value.split(':').map(Number);
+            let endHours = startHours + 1;
+            
+            if (endHours >= 24) {
+                endHours = 23;
+                endTimeInput.value = `${endHours.toString().padStart(2, '0')}:59`;
+            } else {
+                endTimeInput.value = `${endHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')}`;
+            }
+        }
+    }
+
+    // เพิ่มฟังก์ชันนี้หลังจากฟังก์ชัน convertToUTC
+    function toThaiISOString(date) {
+        // สร้าง ISO string ที่บวกเวลา 7 ชั่วโมง
+        const thaiOffset = 7 * 60 * 60 * 1000; // 7 ชั่วโมงในมิลลิวินาที
+        const thaiDate = new Date(date.getTime() + thaiOffset);
+        
+        // รูปแบบ ISO แต่ไม่มี Z (ไม่ใช่ UTC)
+        return thaiDate.toISOString().replace('Z', '+07:00');
     }
 });
