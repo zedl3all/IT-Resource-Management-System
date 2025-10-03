@@ -226,6 +226,7 @@
                 <h2>จองห้อง</h2>
                 <span class="close">&times;</span>
             </div>
+            <!-- แก้ไขฟอร์มจองห้อง -->
             <form id="room-booking-form">
                 <div class="form-group">
                     <label>ห้องที่เลือก</label>
@@ -235,16 +236,12 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="booking-date">วันที่จอง</label>
-                    <input type="date" id="booking-date" name="booking-date" required>
+                    <label for="booking-start-datetime">วันและเวลาที่เริ่มต้น</label>
+                    <input type="datetime-local" id="booking-start-datetime" name="booking-start-datetime" required>
                 </div>
                 <div class="form-group">
-                    <label for="booking-start-time">เวลาเริ่ม</label>
-                    <input type="time" id="booking-start-time" name="booking-start-time" required>
-                </div>
-                <div class="form-group">
-                    <label for="booking-end-time">เวลาสิ้นสุด</label>
-                    <input type="time" id="booking-end-time" name="booking-end-time" required>
+                    <label for="booking-end-datetime">วันและเวลาที่สิ้นสุด</label>
+                    <input type="datetime-local" id="booking-end-datetime" name="booking-end-datetime" required>
                 </div>
                 <div class="form-group">
                     <label for="booking-purpose">วัตถุประสงค์</label>

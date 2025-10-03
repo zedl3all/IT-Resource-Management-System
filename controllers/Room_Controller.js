@@ -131,6 +131,42 @@ const RoomController = {
             res.json(bookings);
         });
     },
+    CreateBooking: (req, res) => {
+        const bookingData = req.body;
+        console.log(bookingData);
+        Room.createBooking(bookingData, (err, bookingId) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.status(201).json({ bookingId });
+        });
+    },
+    CancelBooking: (req, res) => {
+        const bookingId = req.params.id;
+        Room.cancelBooking(bookingId, (err, results) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.json({
+                message: 'Booking cancelled successfully',
+                details: results
+            });
+        });
+    },
+    checkRoomAvailability: (req, res) => {
+        const { roomId, startDate, endDate } = req.query;
+
+        Room.checkAvailability(roomId, startDate, endDate, (err, isAvailable) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.json({ isAvailable });
+        });
+    }
+
 }
 
 module.exports = RoomController;

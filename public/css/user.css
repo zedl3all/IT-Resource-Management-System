@@ -294,3 +294,19 @@
     font-size: 0.9rem;
     color: #777;
 }
+
+/* CSS สำหรับ datetime-local input */
+input[type="datetime-local"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+input[type="datetime-local"]:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}

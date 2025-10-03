@@ -2,7 +2,7 @@
  * IT Resource Management System - User Dashboard
  * Main JavaScript file for user interface interactions
  */
-// TODO: จองห้อง
+// TODO: ยกเลิกการจอง
 // TODO: จองอุปกรณ์
 // TODO: แจ้งซ่อม
 
@@ -95,6 +95,23 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Image viewer controls
         setupImageViewerEvents();
+
+        // Booking start datetime change
+        document.getElementById('booking-start-datetime')?.addEventListener('change', function() {
+            // กำหนดค่าขั้นต่ำของเวลาสิ้นสุดให้เป็นเวลาเริ่มต้น
+            document.getElementById('booking-end-datetime').min = this.value;
+            
+            // ถ้าเวลาสิ้นสุดน้อยกว่าเวลาเริ่มต้น ให้ปรับเวลาสิ้นสุดเป็นเวลาเริ่มต้น + 1 ชั่วโมง
+            const startTime = new Date(this.value);
+            const endTime = new Date(document.getElementById('booking-end-datetime').value);
+            
+            if (endTime <= startTime) {
+                const newEndTime = new Date(startTime);
+                newEndTime.setHours(startTime.getHours() + 1);
+                document.getElementById('booking-end-datetime').value = 
+                    newEndTime.toISOString().slice(0, 16);
+            }
+        });
     }
 
     function setupModalEvents() {
@@ -215,8 +232,34 @@ document.addEventListener("DOMContentLoaded", function () {
         // Set hidden room ID
         document.getElementById("room-booking-form")
             .setAttribute("data-room-id", roomId);
-            
+    
+        // ตั้งค่าเวลาเริ่มต้นและสิ้นสุดตามค่าปัจจุบัน
+        setDefaultBookingTimes();
+        
         elements.modals.roomBooking.style.display = "block";
+    }
+
+    function setDefaultBookingTimes() {
+        // ตั้งค่าเริ่มต้นให้เวลาเริ่มต้นเป็นเวลาปัจจุบัน (ปัดเป็นชั่วโมงถัดไป)
+        const now = new Date();
+        
+        // เริ่มต้น: ปัดเวลาเป็นชั่วโมงถัดไป
+        const startTime = new Date(now);
+        startTime.setHours(now.getHours() + 1);
+        startTime.setMinutes(0);
+        startTime.setSeconds(0);
+        
+        // สิ้นสุด: เวลาเริ่มต้น + 1 ชั่วโมง
+        const endTime = new Date(startTime);
+        endTime.setHours(startTime.getHours() + 1);
+        
+        // แปลงเป็นรูปแบบ ISO string และตัดส่วน timezone และวินาที
+        const startLocalDT = startTime.toISOString().slice(0, 16);
+        const endLocalDT = endTime.toISOString().slice(0, 16);
+        
+        // กำหนดค่าให้กับอินพุต
+        document.getElementById('booking-start-datetime').value = startLocalDT;
+        document.getElementById('booking-end-datetime').value = endLocalDT;
     }
 
     function handleEquipmentBookingButton(button) {
@@ -247,16 +290,27 @@ document.addEventListener("DOMContentLoaded", function () {
         e.preventDefault();
         const formData = new FormData(this);
         const roomId = this.getAttribute("data-room-id");
+        const userId = localStorage.getItem("userId");
+
+        // รับค่าจาก datetime-local
+        const startDateTime = formData.get("booking-start-datetime");
+        const endDateTime = formData.get("booking-end-datetime");
+
+        // ตรวจสอบความถูกต้องของข้อมูล
+        if (new Date(startDateTime) >= new Date(endDateTime)) {
+            showNotification("เวลาเริ่มต้นต้องมาก่อนเวลาสิ้นสุด", "error");
+            return;
+        }
 
         const bookingData = {
             room_id: roomId,
-            booking_date: formData.get("booking-date"),
-            start_time: formData.get("booking-start-time"),
-            end_time: formData.get("booking-end-time"),
+            user_id: userId,
+            start_time: startDateTime,  // ส่งวันเวลาเริ่มต้นทั้งหมด
+            end_time: endDateTime,      // ส่งวันเวลาสิ้นสุดทั้งหมด
             purpose: formData.get("booking-purpose"),
         };
 
-        submitBooking("/api/user/book-room", bookingData, "จองห้อง", elements.modals.roomBooking, loadMyBookings);
+        submitBooking(`/api/rooms/${roomId}/bookings`, bookingData, "จองห้อง", elements.modals.roomBooking, loadMyBookings);
     }
 
     function handleEquipmentBooking(e) {
@@ -280,7 +334,8 @@ document.addEventListener("DOMContentLoaded", function () {
     function submitBooking(url, data, actionName, modal, callback) {
         apiPost(url, data)
             .then(result => {
-                if (result.success) {
+                console.log(result);
+                if (result.bookingId.status == "success" || result.success) {
                     showNotification(`${actionName}สำเร็จ!`);
                     if (modal) modal.style.display = "none";
                     if (callback) callback();
