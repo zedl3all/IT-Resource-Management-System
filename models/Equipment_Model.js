@@ -299,6 +299,55 @@ const Equipment = {
                 });
             });
         });
+    },
+    returnLoan: (loanId, callback) => {
+        console.log('Returning loan with ID:', loanId);
+        // 1. ดึงข้อมูลการยืมเพื่อหาหมายเลขอุปกรณ์
+        const getLoanQuery = `SELECT * FROM loan WHERE loan_id = ? AND status = 1`; // status = 1 = ยืมอยู่
+        db.query(getLoanQuery, [loanId], (err, loanResults) => {
+            if (err) return callback(err);
+            if (loanResults.length === 0) {
+                return callback(new Error('ไม่พบการยืมนี้ หรืออุปกรณ์ถูกคืนแล้ว'));
+            }
+            const eId = loanResults[0].e_id;
+            // 2. เริ่ม Transaction สำหรับการคืนอุปกรณ์และอัพเดทสถานะอุปกรณ์
+            db.beginTransaction((err) => {
+                if (err) return callback(err);
+                // 2.1 อัพเดทสถานะการยืมเป็น "คืนแล้ว" (status = 0)
+                const updateLoanQuery = `UPDATE loan SET status = 0 WHERE loan_id = ?`;
+                db.query(updateLoanQuery, [loanId], (err, updateLoanResults) => {
+                    if (err) {
+                        return db.rollback(() => {
+                            callback(err);
+                        });
+                    }
+                    // 2.2 อัพเดทสถานะอุปกรณ์เป็น "พร้อมให้ยืม" (status = 1)
+                    const updateEquipmentQuery = `UPDATE equipment SET status = 1 WHERE e_id = ?`;
+                    db.query(updateEquipmentQuery, [eId], (err, updateEquipmentResults) => {
+                        if (err) {
+                            return db.rollback(() => {
+                                callback(err);
+                            });
+                        }
+                        // 2.3 Commit Transaction
+                        db.commit((err) => {
+                            if (err) {
+                                return db.rollback(() => {
+                                    callback(err);
+                                });
+                            }
+                            callback(null, {
+                                message: 'คืนอุปกรณ์สำเร็จ',
+                                data: {
+                                    e_id: eId,
+                                    loan_id: loanId
+                                }
+                            });
+                        });
+                    });
+                });
+            });
+        });
     }
 };
 module.exports = Equipment;

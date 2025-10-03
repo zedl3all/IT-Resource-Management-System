@@ -217,9 +217,36 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         } else if (target.classList.contains("btn-cancel-booking")) {
             handleCancelBookingButton(target);
+        } else if (target.classList.contains("btn-return-equipment")) {
+            handleReturnEquipmentButton(target);
         } else if (target.classList.contains("btn-images")) {
             handleViewImages(target);
         }
+    }
+
+    function handleReturnEquipmentButton(button) {
+        const loanId = button.getAttribute("data-loan-id");
+        
+        if (confirm("คุณแน่ใจหรือไม่ที่จะคืนอุปกรณ์นี้?")) {
+            returnEquipment(loanId);
+        }
+    }
+
+    function returnEquipment(loanId) {
+        apiPost(`/api/equipments/${loanId}/return`, { status: 'returned' }, "PATCH")
+            .then(result => {
+                console.log(result);
+                if (result.success || result.status === "success") {
+                    showNotification("คืนอุปกรณ์สำเร็จ!");
+                    loadMyBookings();
+                } else {
+                    showNotification(`เกิดข้อผิดพลาด: ${result.message}`, "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                showNotification("ไม่สามารถคืนอุปกรณ์ได้", "error");
+            });
     }
 
     function handleRoomBookingButton(button) {
@@ -419,6 +446,7 @@ document.addEventListener("DOMContentLoaded", function () {
         apiPost(url, data)
             .then(result => {
                 console.log(result);
+                console.log(result.message);
                 if (result.bookingId.status == "success" || result.success || result.message == "Loan created successfully") {
                     showNotification(`${actionName}สำเร็จ!`);
                     if (modal) modal.style.display = "none";
@@ -782,6 +810,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const purpose = booking.purpose || "ไม่ระบุ";
         const showCancelButton = status.class === STATUS_CONFIG.CLASSES.UPCOMING;
+        // เพิ่มเงื่อนไขสำหรับแสดงปุ่มคืนอุปกรณ์
+        const showReturnButton = !isRoom && status.class === STATUS_CONFIG.CLASSES.ACTIVE;
 
         bookingElement.innerHTML = `
             <div class="booking-header">
@@ -806,22 +836,32 @@ document.addEventListener("DOMContentLoaded", function () {
                         <span>วัตถุประสงค์: ${purpose}</span>
                     </div>
                 </div>
-                ${showCancelButton ? createCancelButton(booking.booking_id, isRoom) : ""}
+                <div class="booking-actions">
+                    ${showCancelButton ? createCancelButton(booking.booking_id || booking.loan_id, isRoom) : ""}
+                    ${showReturnButton ? createReturnButton(booking.loan_id) : ""}
+                </div>
             </div>
         `;
 
         return bookingElement;
     }
 
+    // เพิ่มฟังก์ชันสร้างปุ่มคืนอุปกรณ์
+    function createReturnButton(loanId) {
+        return `
+            <button class="btn-return-equipment" data-loan-id="${loanId}">
+                <i class="fas fa-undo-alt"></i> คืนอุปกรณ์
+            </button>
+        `;
+    }
+
     function createCancelButton(bookingId, isRoom) {
         return `
-            <div class="booking-actions">
-                <button class="btn-cancel-booking" 
-                data-booking-id="${bookingId}" 
-                data-type="${isRoom ? "room" : "equipment"}">
-                    ยกเลิกการจอง
-                </button>
-            </div>
+            <button class="btn-cancel-booking" 
+            data-booking-id="${bookingId}" 
+            data-type="${isRoom ? "room" : "equipment"}">
+                <i class="fas fa-times"></i> ยกเลิกการจอง
+            </button>
         `;
     }
 

@@ -81,6 +81,7 @@
     border-top: 1px solid #f0f0f0;
     display: flex;
     gap: 10px;
+    justify-content: flex-end;
 }
 
 .btn-cancel-booking {
@@ -110,6 +111,22 @@
 
 .btn-book:hover {
     background-color: var(--secondary-color);
+}
+
+.btn-return-equipment {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+    border: none;
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.btn-return-equipment:hover {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .selected-room-info, .selected-equipment-info {

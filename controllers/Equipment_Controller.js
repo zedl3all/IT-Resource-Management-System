@@ -133,6 +133,28 @@ const EquipmentController = {
             // --- emit to clients ---
             res.status(201).json({ message: 'Loan created successfully', loanId: result.insertId });
         });
+    },
+    returnLoan: (req, res) => {
+        const loanId = req.params.loanId;
+        
+        // Remove the status parameter that's causing the issue
+        Equipment.returnLoan(loanId, (err, result) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            
+            // +++ emit to clients +++
+            const io = req.app.get('io');
+            if (io) io.emit('loans:changed', { action: 'update', id: loanId });
+            // --- emit to clients ---
+            
+            res.json({
+                success: true,
+                message: 'Loan returned successfully',
+                data: result
+            });
+        });
     }
 };
 module.exports = EquipmentController;
