@@ -14,7 +14,7 @@ router.get('/:id/bookings/month', RoomController.getBookingsByRoomIdAndMonth);
 router.get('/:id/bookings', RoomController.getBookingsByRoomId);
 router.get('/:id/availability', RoomController.checkRoomAvailability);
 router.post('/:id/bookings', RoomController.CreateBooking);
-router.delete('/bookings/:id', RoomController.CancelBooking);
+router.delete('/cancel-booking/:id', RoomController.CancelBooking);
 
 // Room CRUD
 router.get('/:id', RoomController.getRoomById);
