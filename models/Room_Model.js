@@ -136,7 +136,6 @@ const Room = {
 
         db.query(checkAvailabilityQuery, checkParams, (err, results) => {
             if (err) return callback(err);
-            
             if (results[0].conflict_count > 0) {
                 return callback(new Error('ห้องไม่ว่างในช่วงเวลาที่เลือก'));
             }
@@ -231,7 +230,7 @@ const Room = {
             
             // 2. อัปเดตสถานะการจองเป็น "ยกเลิก" (0)
             const cancelBookingQuery = `
-                UPDATE booking SET status = 0 WHERE booking_id = ?
+                DELETE FROM booking WHERE booking_id = ?
             `;
             
             db.query(cancelBookingQuery, [bookingId], (err, result) => {
