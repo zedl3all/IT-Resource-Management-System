@@ -54,7 +54,7 @@ const broken_items = {
         });
     },
     getByUserId: (userId, callback) => {
-        const query = 'SELECT * FROM maintenance WHERE user_id = ? ';
+        const query = 'SELECT maintenance.*, users.fullname AS staff_fullname FROM maintenance JOIN users ON maintenance.staff_id = users.user_id WHERE maintenance.user_id = ?';
         db.query(query, [userId], (err, results) => {
             if (err) return callback(err);
             callback(null, results);
