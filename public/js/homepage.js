@@ -44,4 +44,26 @@ document.addEventListener('DOMContentLoaded', function() {
             header.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
         }
     });
+
+    // Show user/staff nav links if logged in
+    const userNav = document.getElementById('user-nav');
+    const staffNav = document.getElementById('staff-nav');
+
+    // Simulate user role (for demonstration purposes)
+    const userRole = localStorage.getItem('userRole');
+    console.log('User Role:', userRole);
+
+    if(userRole) {
+        document.getElementById('login-nav').style.display = 'none';
+        document.getElementById('register-nav').style.display = 'none';
+    }
+
+    if (userRole === 'user') {
+        userNav.style.display = 'block';
+    } else if (userRole === 'staff') {
+        staffNav.style.display = 'block';
+    } else if (userRole === 'admin') {
+        userNav.style.display = 'block';
+        staffNav.style.display = 'block';
+    }
 });

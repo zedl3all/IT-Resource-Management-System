@@ -637,3 +637,43 @@ img {
         flex-direction: column;
     }
 }
+
+.user-nav, .staff-nav {
+    display: none;
+    margin: 0 10px;
+    position: relative;
+}
+
+.user-nav a, .staff-nav a {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.user-nav a:hover, .staff-nav a:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.user-nav a:before, .staff-nav a:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 8px;
+}
+
+.user-nav a:before {
+    content: "\f007"; /* user icon */
+}
+
+.staff-nav a:before {
+    content: "\f085"; /* cog icon */
+}
