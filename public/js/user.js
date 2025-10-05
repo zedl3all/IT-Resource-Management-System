@@ -119,6 +119,20 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // Add file input handler for image previews
         document.getElementById('maintenance-images')?.addEventListener('change', handleMaintenanceImagePreview);
+
+        // เพิ่ม event listener เมื่อมีการเปลี่ยนแปลงวันที่จองอุปกรณ์
+        document.getElementById('equipment-booking-date')?.addEventListener('change', function() {
+            const returnDateInput = document.getElementById('equipment-return-date');
+            if (returnDateInput) {
+                // ตั้งค่า min date ของวันที่คืนให้ไม่สามารถน้อยกว่าวันที่จอง
+                returnDateInput.min = this.value;
+                
+                // ถ้าวันที่คืนน้อยกว่าวันที่จอง ให้อัปเดตเป็นวันที่จอง
+                if (returnDateInput.value < this.value) {
+                    returnDateInput.value = this.value;
+                }
+            }
+        });
     }
 
     function setupModalEvents() {
@@ -324,8 +338,46 @@ document.addEventListener("DOMContentLoaded", function () {
         // Set hidden equipment ID
         document.getElementById("equipment-booking-form")
             .setAttribute("data-equipment-id", equipmentId);
-            
+    
+        // ตั้งค่าวันที่และเวลาเริ่มต้นให้เป็นเวลาปัจจุบัน
+        setDefaultEquipmentBookingTimes();
+        
         elements.modals.equipmentBooking.style.display = "block";
+    }
+
+    // เพิ่มฟังก์ชันใหม่
+    function setDefaultEquipmentBookingTimes() {
+        // สร้าง Date object สำหรับเวลาปัจจุบัน
+        const now = new Date();
+        
+        // ตั้งค่าวันที่จองเป็นวันปัจจุบัน
+        const bookingDateInput = document.getElementById('equipment-booking-date');
+        const dateString = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        if (bookingDateInput) bookingDateInput.value = dateString;
+        
+        // ตั้งค่าเวลาจองเป็นเวลาปัจจุบัน
+        const bookingTimeInput = document.getElementById('equipment-booking-time');
+        if (bookingTimeInput) {
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            bookingTimeInput.value = `${hours}:${minutes}`;
+        }
+        
+        // ตั้งค่าวันที่คืนเป็นวันพรุ่งนี้ (default)
+        const returnDateInput = document.getElementById('equipment-return-date');
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowString = tomorrow.toISOString().split('T')[0];
+        if (returnDateInput) {
+            returnDateInput.value = tomorrowString;
+            returnDateInput.min = dateString; // ไม่อนุญาตให้เลือกวันก่อนวันที่จอง
+        }
+        
+        // ตั้งค่าเวลาคืนเป็นเวลาเดียวกับที่จอง
+        const returnTimeInput = document.getElementById('equipment-return-time');
+        if (returnTimeInput) {
+            returnTimeInput.value = bookingTimeInput.value;
+        }
     }
 
     function handleCancelBookingButton(button) {
