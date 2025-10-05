@@ -512,8 +512,8 @@ User Account:
 ## 📞 Support & Contact
 
 หากมีปัญหาหรือข้อสงสัย:
-- 📧 Email: webadmin@it.kmitl.ac.th
-- 📱 Tel: +66 (0) 2723 4900 ต่อ 4930, 4931
+- 📧 Email: sanguanwongtanapat@gmail.com
+- 📱 Tel: +6688-507-4781
 - 🐛 Issues: [GitHub Issues](https://github.com/zedl3all/IT-Resource-Management-System/issues)
 - 📖 Documentation: [API Docs](http://localhost:3000/api-docs)
 
