@@ -116,6 +116,9 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('booking-date')?.addEventListener('change', validateBookingTimes);
         document.getElementById('booking-start-time')?.addEventListener('change', validateBookingTimes);
         document.getElementById('booking-end-time')?.addEventListener('change', validateBookingTimes);
+        
+        // Add file input handler for image previews
+        document.getElementById('maintenance-images')?.addEventListener('change', handleMaintenanceImagePreview);
     }
 
     function setupModalEvents() {
@@ -461,26 +464,67 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function handleMaintenanceRequest(e) {
         e.preventDefault();
-        const formData = new FormData(this);
-
-        const maintenanceData = {
-            equipment: formData.get("maintenance-equipment"),
-            problem_description: formData.get("maintenance-problem"),
-            location: formData.get("maintenance-location"),
-            urgency: formData.get("maintenance-urgency"),
-        };
-
-        apiPost("/api/user/maintenance-request", maintenanceData)
-            .then(result => {
-                if (result.success) {
-                    showNotification("แจ้งซ่อมสำเร็จ!");
-                    elements.modals.maintenance.style.display = "none";
-                    loadMyMaintenanceRequests();
-                } else {
-                    showNotification("เกิดข้อผิดพลาด: " + result.message, "error");
-                }
-            })
-            .catch(error => handleApiError(error, "ไม่สามารถแจ้งซ่อมได้"));
+        
+        // Create a FormData object from the form
+        const form = document.getElementById('maintenance-form');
+        const formData = new FormData(form);
+        
+        // Add user ID to formData
+        formData.append('user_id', localStorage.getItem('userId'));
+        
+        // Debug FormData contents properly
+        console.log("Form data entries:");
+        for (const pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+        
+        // Check if the form has required fields
+        if (!formData.get('equipment') || !formData.get('problem_description')) {
+            showNotification("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
+            return;
+        }
+        
+        // Show loading indicator or disable submit button
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังส่งข้อมูล...';
+        }
+        
+        // Use fetch directly instead of apiPost to properly handle file uploads
+        fetch('/api/maintenances', {
+            method: 'POST',
+            body: formData, // FormData will automatically set the correct Content-Type
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log("Maintenance result:", result);
+            showNotification("แจ้งซ่อมสำเร็จ!");
+            elements.modals.maintenance.style.display = "none";
+            form.reset();
+            
+            // Clear image previews if they exist
+            const previewContainer = document.getElementById('maintenance-image-preview');
+            if (previewContainer) previewContainer.innerHTML = '';
+            
+            loadMyMaintenanceRequests();
+        })
+        .catch(error => {
+            console.error("Error submitting maintenance request:", error);
+            showNotification("ไม่สามารถแจ้งซ่อมได้", "error");
+        })
+        .finally(() => {
+            // Re-enable submit button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'แจ้งซ่อม';
+            }
+        });
     }
 
     function handleLogout(e) {
@@ -675,6 +719,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function loadMyMaintenanceRequests() {
         apiGet(`/api/maintenances/user/${localStorage.getItem("userId")}`)
             .then(data => {
+                console.log("Maintenance data:", data);
                 const tbody = document.querySelector("#my-maintenance-table tbody");
                 tbody.innerHTML = "";
 
@@ -982,6 +1027,7 @@ document.addEventListener("DOMContentLoaded", function () {
         imageViewerState.images = imageList.map(img => 
             `/api/images?path=${img.trim().replace(/^\.\/Images\//, '')}`);
 
+            console.log("Image URLs:", imageViewerState.images);
         // Create thumbnails
         createImageThumbnails(imageViewerState.images);
 
@@ -1295,5 +1341,46 @@ document.addEventListener("DOMContentLoaded", function () {
         
         // รูปแบบ ISO แต่ไม่มี Z (ไม่ใช่ UTC)
         return thaiDate.toISOString().replace('Z', '+07:00');
+    }
+
+    // Add this new function to handle image preview
+    function handleMaintenanceImagePreview(e) {
+        const files = e.target.files;
+        const previewContainer = document.getElementById('maintenance-image-preview');
+        
+        if (!previewContainer) return;
+        
+        // Clear previous previews
+        previewContainer.innerHTML = '';
+        
+        if (files.length === 0) return;
+        
+        // Create preview for each selected file
+        Array.from(files).forEach((file, index) => {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            const preview = document.createElement('div');
+            preview.className = 'image-preview-item';
+            
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${index + 1}">
+                    <span class="remove-image" data-index="${index}">×</span>
+                `;
+                
+                // Add click handler to remove button
+                preview.querySelector('.remove-image').addEventListener('click', function() {
+                    // Remove this specific preview
+                    this.parentNode.remove();
+                    
+                    // We can't directly modify the FileList, so we'll need to 
+                    // handle this when submitting the form
+                });
+            };
+            
+            reader.readAsDataURL(file);
+            previewContainer.appendChild(preview);
+        });
     }
 });

@@ -1,13 +1,12 @@
 const db = require('../config/db');
 const {v4: uuidv4} = require('uuid');
-const { get } = require('../routes/RoomRoute');
 
 const broken_items = {
     getAll: (callback) => {
         const query = `SELECT M.*, USER.username as username, STAFF.username as staff_username, STAFF.fullname as staff_fullname
                     FROM maintenance as M
                     JOIN users as USER ON M.user_id = USER.user_id
-                    JOIN users as STAFF ON M.staff_id = STAFF.user_id;`
+                    LEFT JOIN users as STAFF ON M.staff_id = STAFF.user_id;`
         db.query(query, (err, results) => {
             if (err) return callback(err);
             callback(null, results);
@@ -29,21 +28,46 @@ const broken_items = {
     },
     create: (data, callback) => {
         const request_id = uuidv4().replace(/[^0-9]/g, '').slice(0, 8);
-        const { problem_description, user_id, location, image, DT_report, staff_id, status } = data;
-        const query = 'INSERT INTO maintenance (request_id, problem_description, user_id, location, image, DT_report, staff_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        db.query(query, [request_id, problem_description, user_id, location, image, DT_report, staff_id, status], (err, results) => {
+        const { problem_description, user_id, location, image, staff_id, status, equipment } = data;
+        
+        // Format the datetime properly for MySQL
+        let DT_report;
+        if (data.DT_report) {
+            // Convert ISO string to MySQL datetime format
+            const dt = new Date(data.DT_report);
+            DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
+        } else {
+            // If no date provided, use current time in proper format
+            const dt = new Date();
+            DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
+        }
+        
+        const query = 'INSERT INTO maintenance (request_id, problem_description, user_id, location, image, DT_report, staff_id, status, equipment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        db.query(query, [request_id, problem_description, user_id, location, '.'+image, DT_report, staff_id, status, equipment], (err, results) => {
             if (err) return callback(err);
             callback(null, { request_id, ...data });
         });
     },
     update: (id, data, callback) => {
-        const { problem_description, user_id, location, image, DT_report, staff_id, status } = data;
+        const { problem_description, user_id, location, image, staff_id, status } = data;
+        
+        // Format the datetime properly for MySQL
+        let DT_report;
+        if (data.DT_report) {
+            // Convert ISO string to MySQL datetime format
+            const dt = new Date(data.DT_report);
+            DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
+        } else {
+            // If no date provided, use current time in proper format
+            const dt = new Date();
+            DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
+        }
+        
         const query = 'UPDATE maintenance SET problem_description = ?, user_id = ?, location = ?, image = ?, DT_report = ?, staff_id = ?, status = ? WHERE request_id = ?';
         db.query(query, [problem_description, user_id, location, image, DT_report, staff_id, status, id], (err, results) => {
             if (err) return callback(err);
             callback(null, { request_id: id, ...data });
-        }
-        );
+        });
     },
     updateStaffAndStatus: (id, staff_id, status, callback) => {
         console.log(id, staff_id, status);
@@ -54,7 +78,12 @@ const broken_items = {
         });
     },
     getByUserId: (userId, callback) => {
-        const query = 'SELECT maintenance.*, users.fullname AS staff_fullname FROM maintenance JOIN users ON maintenance.staff_id = users.user_id WHERE maintenance.user_id = ?';
+        const query = `
+            SELECT maintenance.*, users.fullname AS staff_fullname 
+            FROM maintenance 
+            LEFT JOIN users ON maintenance.staff_id = users.user_id 
+            WHERE maintenance.user_id = ?`;
+        
         db.query(query, [userId], (err, results) => {
             if (err) return callback(err);
             callback(null, results);

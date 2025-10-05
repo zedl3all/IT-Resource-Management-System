@@ -5,12 +5,14 @@ const MaintenanceController = require('../controllers/Maintenance_Controller');
 router.get('/', MaintenanceController.getAllMaintenances);
 router.get('/:id', MaintenanceController.getMaintenanceById);
 router.get('/search/:keyword', MaintenanceController.searchMaintenances);
+
+// The createMaintenance method now handles the file upload internally
 router.post('/', MaintenanceController.createMaintenance);
+
 router.put('/:id', MaintenanceController.updateMaintenance);
 router.delete('/:id', MaintenanceController.softDeleteMaintenance);
 router.post('/:id/restore', MaintenanceController.restoreMaintenance);
 router.get('/user/:userId', MaintenanceController.getMaintenancesByUserId);
-
 router.patch('/:id/updateStaffAndStatus', MaintenanceController.updateStaffAndStatus);
 
 module.exports = router;

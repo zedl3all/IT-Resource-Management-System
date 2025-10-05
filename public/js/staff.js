@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function loadMaintenance() {
         fetchData(API_ENDPOINTS.MAINTENANCES)
             .then(data => {
+                console.log("Loaded maintenance data:", data);
                 const repairsTableBody = document.querySelector('#repairs-table tbody');
                 repairsTableBody.innerHTML = '';
                 

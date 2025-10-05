@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/Images', express.static(path.join(__dirname, 'Images')));
 app.set('view engine', 'ejs');
 
 // Routes

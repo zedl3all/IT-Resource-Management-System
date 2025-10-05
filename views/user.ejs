@@ -315,38 +315,28 @@
                 <h2>แจ้งซ่อมอุปกรณ์</h2>
                 <span class="close">&times;</span>
             </div>
-            <form id="maintenance-form">
+            <form id="maintenance-form" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="maintenance-equipment">อุปกรณ์ที่มีปัญหา</label>
-                    <input type="text" id="maintenance-equipment" name="maintenance-equipment" placeholder="ระบุชื่ออุปกรณ์ หรือรหัสอุปกรณ์" required>
+                    <input type="text" id="maintenance-equipment" name="equipment" placeholder="ระบุชื่ออุปกรณ์ หรือรหัสอุปกรณ์" required>
                 </div>
                 <div class="form-group">
                     <label for="maintenance-problem">รายละเอียดปัญหา</label>
-                    <textarea id="maintenance-problem" name="maintenance-problem" rows="4" placeholder="อธิบายปัญหาที่เกิดขึ้นโดยละเอียด" required></textarea>
+                    <textarea id="maintenance-problem" name="problem_description" rows="4" placeholder="อธิบายปัญหาที่เกิดขึ้นโดยละเอียด" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="maintenance-location">ตำแหน่งของอุปกรณ์</label>
-                    <input type="text" id="maintenance-location" name="maintenance-location" placeholder="เช่น ห้อง 301 อาคาร 2" required>
-                </div>
-                <div class="form-group">
-                    <label for="maintenance-urgency">ระดับความเร่งด่วน</label>
-                    <select id="maintenance-urgency" name="maintenance-urgency" required>
-                        <option value="low">ต่ำ - ไม่เร่งด่วน</option>
-                        <option value="medium">ปานกลาง - ค่อนข้างเร่งด่วน</option>
-                        <option value="high">สูง - เร่งด่วนมาก</option>
-                    </select>
+                    <input type="text" id="maintenance-location" name="location" placeholder="เช่น ห้อง 301 อาคาร 2" required>
                 </div>
                 <div class="form-group">
                     <label for="maintenance-images">รูปภาพประกอบ (ถ้ามี)</label>
                     <div class="file-upload-container">
-                        <input type="file" id="maintenance-images" name="maintenance-images" multiple accept="image/*">
+                        <input type="file" id="maintenance-images" name="image" accept="image/*">
                         <label for="maintenance-images" class="file-upload-label">
                             <i class="fas fa-cloud-upload-alt"></i> เลือกรูปภาพ
                         </label>
                     </div>
-                    <div class="image-preview-container" id="maintenance-image-preview">
-                        <!-- Image previews will be displayed here -->
-                    </div>
+                    <div id="maintenance-image-preview" class="image-preview-container"></div>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn-cancel">ยกเลิก</button>

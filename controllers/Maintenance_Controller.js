@@ -1,4 +1,8 @@
 const Maintenance = require('../models/maintenance_Model');
+const upload = require('../middleware/Upload_Middleware');
+const path = require('path');
+
+const handleUpload = upload.single('image'); // Middleware to handle a single image upload
 
 const MaintenanceController = {
     getAllMaintenances: (req, res) => {
@@ -35,17 +39,46 @@ const MaintenanceController = {
         });
     },
     createMaintenance: (req, res) => {
-        const MaintenanceData = req.body;
-        Maintenance.create(MaintenanceData, (err, MaintenanceId) => {
-            if (err) return res.status(500).json({
-                error: 'Internal server error',
-                details: err.message
+        handleUpload(req, res, function(err) {
+            if (err) {
+                return res.status(400).json({
+                    error: 'File upload error',
+                    details: err.message
+                });
+            }
+            
+            // Get the maintenance data from the request body
+            const maintenanceData = req.body;
+            
+            // Add image path if a file was uploaded
+            if (req.file) {
+                // Update the path to match the new location
+                maintenanceData.image = '/Images/maintenance/' + path.basename(req.file.path);
+            }
+            
+            // Set default values if not provided
+            maintenanceData.DT_report = maintenanceData.DT_report || new Date().toISOString();
+            maintenanceData.staff_id = maintenanceData.staff_id || null;
+            maintenanceData.status = maintenanceData.status || 0; // Default to pending
+            
+            // Include equipment information in problem description if available
+            if (maintenanceData.equipment) {
+                maintenanceData.problem_description = `อุปกรณ์: ${maintenanceData.equipment}\n${maintenanceData.problem_description}`;
+            }
+            
+            // Create the maintenance record
+            Maintenance.create(maintenanceData, (err, maintenanceId) => {
+                if (err) return res.status(500).json({
+                    error: 'Internal server error',
+                    details: err.message
+                });
+                
+                // Emit event to clients
+                const io = req.app.get('io');
+                if (io) io.emit('maintenances:changed', { action: 'create' });
+                
+                res.status(201).json({ maintenanceId });
             });
-            // +++ emit to clients +++
-            const io = req.app.get('io');
-            if (io) io.emit('maintenances:changed', { action: 'create' });
-            // --- emit to clients ---
-            res.status(201).json({ MaintenanceId });
         });
     },
     updateMaintenance: (req, res) => {
