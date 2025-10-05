@@ -3,7 +3,7 @@
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)
-![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ## 📋 Overview
 
@@ -92,4 +92,4 @@ To run using `npm start`, add the script in `package.json` (optional):
 - Manage maintenance requests with images and responsible personnel
 
 ## 📜 License
-ISC
+MIT
