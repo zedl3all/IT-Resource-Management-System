@@ -7,6 +7,10 @@ const UpdateStatusService = require('./middleware/UpdateService');
 const http = require('http');
 const { Server } = require('socket.io');
 
+// Swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./docs/swagger');
+
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -36,6 +40,9 @@ app.use('/api/equipment-types', equipmentTypeRoutes);
 app.use('/error', errorRoute);
 app.use('/auth', AuthRoute);
 app.use('/', webRoutes);
+
+// Swagger route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // handle 404
 app.use((req, res, next) => {
