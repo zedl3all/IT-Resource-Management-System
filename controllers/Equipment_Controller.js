@@ -1,4 +1,4 @@
-const Equipment = require('../models/equipment_Model');
+const Equipment = require('../models/Equipment_Model');
 
 const EquipmentController = {
     getAllEquipment: (req, res) => {
