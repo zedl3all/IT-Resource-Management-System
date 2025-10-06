@@ -1,10 +1,10 @@
 {
   "name": "it-resource-management-system",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "zedl3all <https://github.com/zedl3all>",
