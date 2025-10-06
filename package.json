@@ -1,42 +1,57 @@
 {
-  "name": "it-resource-management-system",
-  "version": "1.0.0",
-  "main": "server.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
-  },
-  "keywords": [],
-  "author": "zedl3all <https://github.com/zedl3all>",
-  "contributors": [
-    "zedl3all <https://github.com/zedl3all>",
-    "FirzKung <https://github.com/66070266>",
-    "Natokung <https://github.com/66070277Noppawit>"
-  ],
-  "license": "ISC",
-  "type": "commonjs",
-  "description": "ในปัจจุบันการบริหารจัดการทรัพยากรไอทีภายในคณะมักเผชิญกับปัญหาด้านประสิทธิภาพ ไม่ว่าจะเป็นความยุ่งยากในการตรวจสอบสถานะการใช้งาน การจองที่ซ้ำซ้อน และการติดตามการยืม-คืนอุปกรณ์ที่ขาดระบบจัดการที่ดี รวมถึงการแจ้งซ่อมบำรุงที่ไม่มีระบบติดตามสถานะที่ชัดเจน ซึ่งปัญหาเหล่านี้ล้วนส่งผลกระทบโดยตรงต่อกระบวนการเรียนการสอนและการทำงานโดยรวมของคณะ\r ดังนั้นคณะผู้จัดทำจึงเล็งเห็นถึงความสำคัญของปัญหาเหล่านี้ และได้คิดริเริ่มพัฒนา IT Resource Management System ซึ่งเป็น Web Application เพื่อเป็นศูนย์กลางในการบริหารจัดการทรัพยากรไอทีแบบครบวงจร ระบบนี้จะอำนวยความสะดวกให้ผู้ใช้งานสามารถ จองห้องเรียน และ ยืม-คืนอุปกรณ์ไอที ได้อย่างเป็นระบบ นอกจากนี้ยังรองรับการ แจ้งและติดตามสถานะงานซ่อมบำรุง อุปกรณ์ได้อย่างโปร่งใส ด้วย Node.js + Express + MySQL",
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.2",
-    "cookie-parser": "^1.4.7",
-    "dotenv": "^17.2.2",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "multer": "^2.0.2",
-    "mysql2": "^3.14.5",
-    "socket.io": "^4.8.1",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "uuid": "^11.1.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zedl3all/IT-Resource-Management-System.git"
-  },
-  "bugs": {
-    "url": "https://github.com/zedl3all/IT-Resource-Management-System/issues"
-  },
-  "homepage": "https://github.com/zedl3all/IT-Resource-Management-System#readme"
+    "name": "it-resource-management-system",
+    "version": "1.0.0",
+    "main": "server.js",
+    "scripts": {
+        "test": "jest --detectOpenHandles",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "test:unit": "jest tests/unit",
+        "dev": "nodemon server.js"
+    },
+    "keywords": [],
+    "author": "zedl3all <https://github.com/zedl3all>",
+    "contributors": [
+        "zedl3all <https://github.com/zedl3all>",
+        "FirzKung <https://github.com/66070266>",
+        "Natokung <https://github.com/66070277Noppawit>"
+    ],
+    "license": "ISC",
+    "type": "commonjs",
+    "description": "ในปัจจุบันการบริหารจัดการทรัพยากรไอทีภายในคณะมักเผชิญกับปัญหาด้านประสิทธิภาพ ไม่ว่าจะเป็นความยุ่งยากในการตรวจสอบสถานะการใช้งาน การจองที่ซ้ำซ้อน และการติดตามการยืม-คืนอุปกรณ์ที่ขาดระบบจัดการที่ดี รวมถึงการแจ้งซ่อมบำรุงที่ไม่มีระบบติดตามสถานะที่ชัดเจน ซึ่งปัญหาเหล่านี้ล้วนส่งผลกระทบโดยตรงต่อกระบวนการเรียนการสอนและการทำงานโดยรวมของคณะ\r ดังนั้นคณะผู้จัดทำจึงเล็งเห็นถึงความสำคัญของปัญหาเหล่านี้ และได้คิดริเริ่มพัฒนา IT Resource Management System ซึ่งเป็น Web Application เพื่อเป็นศูนย์กลางในการบริหารจัดการทรัพยากรไอทีแบบครบวงจร ระบบนี้จะอำนวยความสะดวกให้ผู้ใช้งานสามารถ จองห้องเรียน และ ยืม-คืนอุปกรณ์ไอที ได้อย่างเป็นระบบ นอกจากนี้ยังรองรับการ แจ้งและติดตามสถานะงานซ่อมบำรุง อุปกรณ์ได้อย่างโปร่งใส ด้วย Node.js + Express + MySQL",
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "bcryptjs": "^3.0.2",
+        "cookie-parser": "^1.4.7",
+        "dotenv": "^17.2.2",
+        "ejs": "^3.1.10",
+        "express": "^5.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "multer": "^2.0.2",
+        "mysql2": "^3.14.5",
+        "socket.io": "^4.8.1",
+        "uuid": "^11.1.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zedl3all/IT-Resource-Management-System.git"
+    },
+    "bugs": {
+        "url": "https://github.com/zedl3all/IT-Resource-Management-System/issues"
+    },
+    "homepage": "https://github.com/zedl3all/IT-Resource-Management-System#readme",
+    "devDependencies": {
+        "@babel/cli": "^7.28.3",
+        "@babel/core": "^7.28.4",
+        "@babel/preset-env": "^7.28.3",
+        "babel-cli": "^6.26.0",
+        "cross-env": "^10.1.0",
+        "jest": "^30.2.0",
+        "jest-environment-node": "^30.2.0",
+        "jest-html-reporter": "^4.3.0",
+        "superagent": "^10.2.3",
+        "supertest": "^7.1.4",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1"
+    }
 }
