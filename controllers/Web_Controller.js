@@ -1,6 +1,4 @@
 const Room = require('../models/Room_Model');
-const maintenance = require('../models/maintenance_Model');
-const Equipment = require('../models/Equipment_Model');
 
 const WebController = {
     getStaffView: (req, res) => {
