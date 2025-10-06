@@ -2,7 +2,6 @@
  * IT Resource Management System - User Dashboard
  * Main JavaScript file for user interface interactions
  */
-// TODO: แจ้งซ่อม
 
 document.addEventListener("DOMContentLoaded", function () {
     // ===== Constants & Configuration =====
@@ -58,7 +57,9 @@ document.addEventListener("DOMContentLoaded", function () {
             thumbnails: document.getElementById('image-thumbnails'),
             prevButton: document.getElementById('prev-image'),
             nextButton: document.getElementById('next-image')
-        }
+        },
+        // เพิ่ม searchInput
+        searchInput: document.querySelector('.search-bar input')
     };
 
     // Image viewer state
@@ -131,6 +132,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (returnDateInput.value < this.value) {
                     returnDateInput.value = this.value;
                 }
+            }
+        });
+        
+        // เพิ่ม event listener สำหรับช่องค้นหา
+        if (elements.searchInput) {
+            elements.searchInput.addEventListener('input', handleSearch);
+        }
+        
+        // เพิ่ม event listener สำหรับไอคอนค้นหา (เพื่อล้างการค้นหา)
+        document.querySelector('.fas.fa-search')?.addEventListener('click', function() {
+            if (elements.searchInput.value) {
+                elements.searchInput.value = '';
+                handleSearch();
             }
         });
     }
@@ -1434,5 +1448,126 @@ document.addEventListener("DOMContentLoaded", function () {
             reader.readAsDataURL(file);
             previewContainer.appendChild(preview);
         });
+    }
+
+    // เพิ่มฟังก์ชัน handleSearch
+    function handleSearch() {
+        const searchTerm = elements.searchInput.value.trim().toLowerCase();
+        const activeSection = document.querySelector('.section.active');
+        
+        if (!activeSection) return;
+        
+        // ตรวจสอบว่ากำลังอยู่ที่หน้าไหน
+        if (activeSection.id === 'rooms') {
+            filterTable('#available-rooms-table tbody tr', searchTerm, [0, 1, 2]); // ค้นหาตามรหัสห้อง, ชื่อห้อง และรายละเอียด
+        } else if (activeSection.id === 'equipment') {
+            filterTable('#available-equipment-table tbody tr', searchTerm, [0, 1, 2]); // ค้นหาตามรหัสอุปกรณ์, ชื่ออุปกรณ์ และประเภท
+        } else if (activeSection.id === 'maintenance') {
+            filterTable('#my-maintenance-table tbody tr', searchTerm, [0, 1, 2, 3, 4]); // ค้นหาตามรหัสรายการ, อุปกรณ์, ปัญหา, ตำแหน่ง, และเจ้าหน้าที่
+        } else if (activeSection.id === 'bookings') {
+            // สำหรับการค้นหาในการจอง (ใช้วิธีต่างจากตาราง)
+            filterBookingItems('.booking-item', searchTerm);
+        }
+    }
+    
+    // เพิ่มฟังก์ชันกรองตาราง
+    function filterTable(selector, searchTerm, columnsToSearch) {
+        const rows = document.querySelectorAll(selector);
+        
+        rows.forEach(row => {
+            if (!searchTerm) {
+                // ถ้าไม่มีคำค้นหา แสดงทุกแถว
+                row.style.display = '';
+                return;
+            }
+            
+            let found = false;
+            
+            // ค้นหาในคอลัมน์ที่ระบุ
+            columnsToSearch.forEach(columnIndex => {
+                const cell = row.querySelector(`td:nth-child(${columnIndex + 1})`);
+                if (cell && cell.textContent.toLowerCase().includes(searchTerm)) {
+                    found = true;
+                }
+            });
+            
+            // ซ่อนหรือแสดงแถวตามผลการค้นหา
+            row.style.display = found ? '' : 'none';
+        });
+        
+        // อัปเดตสถิติหรือข้อความแสดงผลเมื่อไม่พบข้อมูล
+        updateAfterSearch();
+    }
+    
+    // เพิ่มฟังก์ชันกรอง booking items
+    function filterBookingItems(selector, searchTerm) {
+        const bookingItems = document.querySelectorAll(selector);
+        
+        bookingItems.forEach(item => {
+            if (!searchTerm) {
+                // ถ้าไม่มีคำค้นหา แสดงทุกรายการ
+                item.style.display = '';
+                return;
+            }
+            
+            const bookingText = item.textContent.toLowerCase();
+            const found = bookingText.includes(searchTerm);
+            
+            // ซ่อนหรือแสดงรายการตามผลการค้นหา
+            item.style.display = found ? '' : 'none';
+        });
+        
+        // ตรวจสอบและแสดงข้อความเมื่อไม่พบรายการที่ตรงกับการค้นหา
+        checkEmptyState("my-room-bookings-container", "ไม่พบการจองห้องที่ตรงกับคำค้นหา", "door-open");
+        checkEmptyState("my-equipment-bookings-container", "ไม่พบการจองอุปกรณ์ที่ตรงกับคำค้นหา", "laptop");
+    }
+    
+    // เพิ่มฟังก์ชัน updateAfterSearch
+    function updateAfterSearch() {
+        const activeSection = document.querySelector('.section.active');
+        
+        if (!activeSection) return;
+        
+        // แสดงข้อความเมื่อไม่พบข้อมูล
+        if (activeSection.id === 'rooms') {
+            const visibleRows = document.querySelectorAll('#available-rooms-table tbody tr:not([style*="display: none"])');
+            updateEmptyTableMessage('#available-rooms-table', visibleRows.length === 0, "ไม่พบห้องที่ตรงกับคำค้นหา");
+        } 
+        else if (activeSection.id === 'equipment') {
+            const visibleRows = document.querySelectorAll('#available-equipment-table tbody tr:not([style*="display: none"])');
+            updateEmptyTableMessage('#available-equipment-table', visibleRows.length === 0, "ไม่พบอุปกรณ์ที่ตรงกับคำค้นหา");
+        }
+        else if (activeSection.id === 'maintenance') {
+            const visibleRows = document.querySelectorAll('#my-maintenance-table tbody tr:not([style*="display: none"]):not(.no-data-row)');
+            updateEmptyTableMessage('#my-maintenance-table', visibleRows.length === 0, "ไม่พบรายการแจ้งซ่อมที่ตรงกับคำค้นหา");
+        }
+    }
+    
+    // เพิ่มฟังก์ชัน updateEmptyTableMessage
+    function updateEmptyTableMessage(tableSelector, isEmpty, message) {
+        const table = document.querySelector(tableSelector);
+        if (!table) return;
+        
+        // ลบข้อความเดิมถ้ามี
+        const existingMessage = table.querySelector('.search-empty-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        if (isEmpty && elements.searchInput.value.trim() !== '') {
+            const tbody = table.querySelector('tbody');
+            const noDataRow = document.createElement('tr');
+            noDataRow.className = 'search-empty-message';
+            noDataRow.innerHTML = `
+                <td colspan="100%" class="no-data-cell">
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>${message}</h3>
+                        <p>ลองใช้คำค้นหาอื่น หรือล้างการค้นหา</p>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(noDataRow);
+        }
     }
 });
