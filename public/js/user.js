@@ -595,17 +595,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function handleLogout(e) {
         e.preventDefault();
-
-        apiPost("/auth/logout", {}, "POST")
-            .then(response => {
-                if (response.ok) {
-                    showNotification("ออกจากระบบสำเร็จ");
-                    window.location.href = "/";
-                } else {
-                    showNotification("เกิดข้อผิดพลาดในการออกจากระบบ", "error");
-                }
-            })
-            .catch(() => showNotification("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้", "error"));
+        
+        fetch('/auth/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('ออกจากระบบสำเร็จ');
+                // ล้าง local storage
+                localStorage.clear();
+                // เปลี่ยนเส้นทางไปยังหน้าหลัก
+                window.location.href = '/';
+            } else {
+                alert('เกิดข้อผิดพลาดในการออกจากระบบ');
+            }
+        })
+        .catch(error => {
+            console.error('Logout error:', error);
+            alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+        });
     }
 
     // ===== Socket Event Handlers =====
