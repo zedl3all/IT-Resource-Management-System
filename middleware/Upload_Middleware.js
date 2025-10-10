@@ -1,27 +1,25 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// Change the upload directory to Images/maintenance
-const uploadDir = 'Images/maintenance';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// เปลี่ยนจาก diskStorage เป็น memoryStorage เพื่ออัปโหลดขึ้น S3
+// ใช้ memory storage เพื่อเก็บไฟล์ในหน่วยความจำก่อนอัพโหลดไปยัง S3
 const storage = multer.memoryStorage();
 
-// File filter to only accept images
+// File filter เพื่อให้รับเฉพาะไฟล์รูปภาพ
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) cb(null, true);
-    else cb(new Error('Only image files are allowed!'), false);
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('อนุญาตให้อัพโหลดเฉพาะไฟล์รูปภาพเท่านั้น!'), false);
+  }
 };
 
-// Create the multer instance with configuration
-const upload = multer({
-    storage,
-    fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+// สร้าง multer instance พร้อมการตั้งค่า
+const upload = multer({ 
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // จำกัดขนาดไฟล์ที่ 5MB
+  }
 });
 
 module.exports = upload;

@@ -686,12 +686,12 @@ document.addEventListener('DOMContentLoaded', function () {
         // สร้าง image URLs - รองรับทั้ง S3 URL และ path แบบเดิม
         images = imageList.map(img => {
             const trimmedImg = img.trim();
-            // ถ้าเป็น URL เต็มแล้ว (S3) ใช้เลย
+            // ถ้าเป็น URL เต็มแล้วใช้เลย
             if (trimmedImg.startsWith('https://') || trimmedImg.startsWith('http://')) {
                 return trimmedImg;
             }
-            // ถ้าไม่ใช่ ใช้ API endpoint สำหรับ local storage
-            return `${API_ENDPOINTS.IMAGES}?path=${encodeURIComponent(trimmedImg.replace(/^\.\/Images\//, ''))}`;
+            // ถ้าไม่ใช่ใช้ API endpoint
+            return `${API_ENDPOINTS.IMAGES}?path=${trimmedImg.replace(/^\.\/Images\//, '')}`;
         });
         
         createImageThumbnails(images);

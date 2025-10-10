@@ -9,27 +9,31 @@ class ImageController {
                 return res.status(400).json({ success: false, message: 'Missing query parameter: path' });
             }
 
-            // ถ้า path เป็น URL เต็มของ S3 ให้ redirect ไปที่ URL นั้น
-            if (imagePath.startsWith('https://') || imagePath.startsWith('http://')) {
+            // ตรวจสอบว่าเป็น URL เต็มหรือไม่
+            if (imagePath.startsWith('http')) {
+                // ถ้าใช่ให้ redirect ไปยัง URL นั้น
                 return res.redirect(imagePath);
             }
 
-            // sanitize path
+            // Sanitize path
             const sanitizedPath = path.normalize(imagePath)
                 .replace(/^(\.\.(\/|\\|$))+/, '')
                 .replace(/^[/\\]+/, '');
 
-            // เพิ่ม prefix image/ ถ้ายังไม่มี
-            const finalPath = sanitizedPath.startsWith('image/') ? sanitizedPath : `image/${sanitizedPath}`;
-
-            const exists = await ImageModel.imageExists(finalPath);
+            const exists = await ImageModel.imageExists(sanitizedPath);
             if (!exists) {
                 return res.status(404).json({ success: false, message: 'Image not found' });
             }
 
-            const obj = await ImageModel.getImageObject(finalPath);
-            if (obj.ContentType) res.set('Content-Type', obj.ContentType);
+            const obj = await ImageModel.getImageObject(sanitizedPath);
             
+            // ถ้าเป็นประเภท redirect
+            if (obj.type === 'redirect') {
+                return res.redirect(obj.url);
+            }
+            
+            // ถ้าเป็นไฟล์ปกติ
+            if (obj.ContentType) res.set('Content-Type', obj.ContentType);
             obj.Body.pipe(res);
         } catch (error) {
             console.error('Error retrieving image:', error);
@@ -44,10 +48,10 @@ class ImageController {
                 .replace(/^(\.\.(\/|\\|$))+/, '')
                 .replace(/^[/\\]+/, '');
 
-            // เพิ่ม prefix image/
+            // เพิ่ม prefix สำหรับ S3
             const prefix = sanitizedDir ? `image/${sanitizedDir}/` : 'image/';
-            
             const images = await ImageModel.listImages(prefix);
+            
             return res.status(200).json({
                 success: true,
                 directory: sanitizedDir,

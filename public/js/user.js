@@ -828,10 +828,10 @@ document.addEventListener("DOMContentLoaded", function () {
             <td>${formattedDate}</td>
             <td><span class="status ${statusInfo.class}">${statusInfo.text}</span></td>
             <td class="actions">
-                ${images ? `<button class="btn-images" data-images="${images}">
-                             <i class="fas fa-images"></i></button>` : ''}
-            </td>
-        `;
+      ${images ? `<button class="btn-images" data-images="${images}">
+                   <i class="fas fa-images"></i></button>` : ''}
+    </td>
+  `;
         
         return row;
     }
@@ -1102,20 +1102,23 @@ document.addEventListener("DOMContentLoaded", function () {
         // สร้าง image URLs - รองรับทั้ง S3 URL และ path แบบเดิม
         imageViewerState.images = imageList.map(img => {
             const trimmedImg = img.trim();
-            // ถ้าเป็น URL เต็มแล้ว (S3) ใช้เลย
+            // ถ้าเป็น URL เต็มแล้วใช้เลย
             if (trimmedImg.startsWith('https://') || trimmedImg.startsWith('http://')) {
                 return trimmedImg;
             }
-            // ถ้าไม่ใช่ ใช้ API endpoint สำหรับ local storage
-            return `/api/images?path=${encodeURIComponent(trimmedImg.replace(/^\.\/Images\//, ''))}`;
+            // ถ้าไม่ใช่ใช้ API endpoint
+            return `/api/images?path=${trimmedImg.replace(/^\.\/Images\//, '')}`;
         });
 
         console.log("Image URLs:", imageViewerState.images);
+        // สร้าง thumbnails
         createImageThumbnails(imageViewerState.images);
 
+        // ตั้งค่ารูปภาพแรกเป็นรูปปัจจุบัน
         imageViewerState.currentIndex = 0;
         setCurrentImage(imageViewerState.currentIndex);
 
+        // แสดง modal
         elements.modals.imageViewer.style.display = 'block';
     }
 

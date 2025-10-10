@@ -48,58 +48,60 @@ const MaintenanceController = {
                     details: err.message
                 });
             }
-
-            try {
-                const maintenanceData = req.body;
-
-                // ถ้ามีไฟล์ ให้อัปโหลดขึ้น S3
-                if (req.file) {
+            
+            // รับข้อมูลจาก request body
+            const maintenanceData = req.body;
+            
+            // อัพโหลดไฟล์ไปยัง S3 ถ้ามีไฟล์
+            if (req.file) {
+                try {
+                    // กำหนดนามสกุลไฟล์
                     const ext = path.extname(req.file.originalname) || '.jpg';
-                    // สร้าง key โดยใช้ path: image/maintenance/
-                    const key = `image/maintenance/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-
+                    // สร้าง key สำหรับ S3 เพื่อเก็บในโฟลเดอร์ image/maintenance
+                    const key = `image/maintenance/maintenance-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+                    
+                    // อัพโหลดไฟล์ไปยัง S3
                     await s3.send(new PutObjectCommand({
                         Bucket: bucket,
                         Key: key,
                         Body: req.file.buffer,
                         ContentType: req.file.mimetype,
-                        // เพิ่ม ACL เพื่อให้สามารถเข้าถึงได้แบบ public
-                        ACL: 'public-read'
+                        ACL: 'public-read' // ให้ไฟล์เป็น public เพื่อให้เข้าถึงได้โดยตรงผ่าน URL
                     }));
-
-                    // สร้าง URL แบบเต็มสำหรับ S3
-                    maintenanceData.image = `https://${bucket}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
-                    console.log('Uploaded image to S3:', maintenanceData.image);
-                }
-
-                // ค่าเริ่มต้น
-                maintenanceData.DT_report = maintenanceData.DT_report || new Date().toISOString();
-                maintenanceData.status = maintenanceData.status ?? 0;
-
-                Maintenance.create(maintenanceData, (dbErr, result) => {
-                    if (dbErr) {
-                        return res.status(500).json({
-                            error: 'Internal server error',
-                            details: dbErr.message
-                        });
-                    }
                     
-                    const io = req.app.get('io');
-                    io?.emit('maintenances:changed', { action: 'create', id: result.request_id });
-
-                    return res.status(201).json({
-                        message: 'Maintenance request created successfully',
-                        request_id: result.request_id,
-                        image: maintenanceData.image || null
+                    // เก็บ URL เต็มแทนที่จะเก็บเพียง path
+                    maintenanceData.image = `https://${bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+                } catch (e) {
+                    return res.status(500).json({
+                        error: 'S3 upload error',
+                        details: e.message
                     });
-                });
-            } catch (e) {
-                console.error('S3 upload error:', e);
-                return res.status(500).json({
-                    error: 'Internal server error',
-                    details: e.message
-                });
+                }
             }
+            
+            // ตั้งค่าเริ่มต้น
+            maintenanceData.DT_report = maintenanceData.DT_report || new Date().toISOString();
+            maintenanceData.status = maintenanceData.status ?? 0; // 0 = รอดำเนินการ
+
+            // บันทึกข้อมูล
+            Maintenance.create(maintenanceData, (dbErr, result) => {
+                if (dbErr) {
+                    return res.status(500).json({
+                        error: 'Database error',
+                        details: dbErr.message
+                    });
+                }
+                
+                // ส่งข้อมูลผ่าน Socket.IO ถ้ามีการตั้งค่าไว้
+                const io = req.app.get('io');
+                if (io) io.emit('maintenances:changed', { action: 'create', id: result.request_id });
+                
+                return res.status(201).json({
+                    message: 'สร้างรายการแจ้งซ่อมสำเร็จ',
+                    maintenanceId: result.request_id,
+                    image: maintenanceData.image || null
+                });
+            });
         });
     },
     updateMaintenance: (req, res) => {

@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const broken_items = {
     getAll: (callback) => {
@@ -39,7 +39,7 @@ const broken_items = {
             DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
         }
         
-        // ไม่ต้องเพิ่ม . หน้า image เพราะเป็น URL เต็มแล้ว
+        // เก็บ URL เต็มโดยไม่ต้องเพิ่ม '.' ข้างหน้า
         const query = 'INSERT INTO maintenance (request_id, problem_description, user_id, location, image, DT_report, staff_id, status, equipment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
         db.query(query, [request_id, problem_description, user_id, location, image, DT_report, staff_id, status, equipment], (err, results) => {
             if (err) return callback(err);
