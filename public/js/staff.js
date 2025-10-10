@@ -672,7 +672,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function handleViewImages(button) {
         const imagesAttr = button.getAttribute('data-images');
         
-        // Validate images data
         if (!imagesAttr) {
             alert('ไม่พบรูปภาพสำหรับรายการนี้');
             return;
@@ -684,17 +683,22 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         
-        // Create image URLs
-        images = imageList.map(img => `${API_ENDPOINTS.IMAGES}?path=${img.trim().replace(/^\.\/Images\//, '')}`);
+        // สร้าง image URLs - รองรับทั้ง S3 URL และ path แบบเดิม
+        images = imageList.map(img => {
+            const trimmedImg = img.trim();
+            // ถ้าเป็น URL เต็มแล้ว (S3) ใช้เลย
+            if (trimmedImg.startsWith('https://') || trimmedImg.startsWith('http://')) {
+                return trimmedImg;
+            }
+            // ถ้าไม่ใช่ ใช้ API endpoint สำหรับ local storage
+            return `${API_ENDPOINTS.IMAGES}?path=${encodeURIComponent(trimmedImg.replace(/^\.\/Images\//, ''))}`;
+        });
         
-        // Create thumbnails
         createImageThumbnails(images);
         
-        // Set first image as current
         currentImageIndex = 0;
         setCurrentImage(currentImageIndex);
         
-        // Show modal
         modals.imageViewer.style.display = 'block';
     }
     

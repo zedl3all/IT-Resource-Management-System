@@ -30,20 +30,18 @@ const broken_items = {
         const request_id = uuidv4().replace(/[^0-9]/g, '').slice(0, 8);
         const { problem_description, user_id, location, image, staff_id, status, equipment } = data;
         
-        // Format the datetime properly for MySQL
         let DT_report;
         if (data.DT_report) {
-            // Convert ISO string to MySQL datetime format
             const dt = new Date(data.DT_report);
             DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
         } else {
-            // If no date provided, use current time in proper format
             const dt = new Date();
             DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
         }
         
+        // ไม่ต้องเพิ่ม . หน้า image เพราะเป็น URL เต็มแล้ว
         const query = 'INSERT INTO maintenance (request_id, problem_description, user_id, location, image, DT_report, staff_id, status, equipment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        db.query(query, [request_id, problem_description, user_id, location, '.'+image, DT_report, staff_id, status, equipment], (err, results) => {
+        db.query(query, [request_id, problem_description, user_id, location, image, DT_report, staff_id, status, equipment], (err, results) => {
             if (err) return callback(err);
             callback(null, { request_id, ...data });
         });
@@ -51,14 +49,11 @@ const broken_items = {
     update: (id, data, callback) => {
         const { problem_description, user_id, location, image, staff_id, status } = data;
         
-        // Format the datetime properly for MySQL
         let DT_report;
         if (data.DT_report) {
-            // Convert ISO string to MySQL datetime format
             const dt = new Date(data.DT_report);
             DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
         } else {
-            // If no date provided, use current time in proper format
             const dt = new Date();
             DT_report = dt.toISOString().slice(0, 19).replace('T', ' ');
         }

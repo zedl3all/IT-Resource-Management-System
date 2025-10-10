@@ -1099,19 +1099,23 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Create image URLs
-        imageViewerState.images = imageList.map(img => 
-            `/api/images?path=${img.trim().replace(/^\.\/Images\//, '')}`);
+        // สร้าง image URLs - รองรับทั้ง S3 URL และ path แบบเดิม
+        imageViewerState.images = imageList.map(img => {
+            const trimmedImg = img.trim();
+            // ถ้าเป็น URL เต็มแล้ว (S3) ใช้เลย
+            if (trimmedImg.startsWith('https://') || trimmedImg.startsWith('http://')) {
+                return trimmedImg;
+            }
+            // ถ้าไม่ใช่ ใช้ API endpoint สำหรับ local storage
+            return `/api/images?path=${encodeURIComponent(trimmedImg.replace(/^\.\/Images\//, ''))}`;
+        });
 
-            console.log("Image URLs:", imageViewerState.images);
-        // Create thumbnails
+        console.log("Image URLs:", imageViewerState.images);
         createImageThumbnails(imageViewerState.images);
 
-        // Set first image as current
         imageViewerState.currentIndex = 0;
         setCurrentImage(imageViewerState.currentIndex);
 
-        // Show modal
         elements.modals.imageViewer.style.display = 'block';
     }
 

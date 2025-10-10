@@ -1,15 +1,7 @@
 const path = require('path');
 const ImageModel = require('../models/Image_Model');
 
-/**
- * Controller for handling image-related operations
- */
 class ImageController {
-    /**
-     * Get an image by its path
-     * @param {object} req - Express request object
-     * @param {object} res - Express response object
-     */
     async getImage(req, res) {
         try {
             const imagePath = req.query.path;
@@ -17,20 +9,27 @@ class ImageController {
                 return res.status(400).json({ success: false, message: 'Missing query parameter: path' });
             }
 
-            // sanitize
-            const sanitizedPath = path.normalize(imagePath).replace(/^(\.\.(\/|\\|$))+/, '').replace(/^[/\\]+/, '');
+            // ถ้า path เป็น URL เต็มของ S3 ให้ redirect ไปที่ URL นั้น
+            if (imagePath.startsWith('https://') || imagePath.startsWith('http://')) {
+                return res.redirect(imagePath);
+            }
 
-            // check and stream
-            const exists = await ImageModel.imageExists(sanitizedPath);
+            // sanitize path
+            const sanitizedPath = path.normalize(imagePath)
+                .replace(/^(\.\.(\/|\\|$))+/, '')
+                .replace(/^[/\\]+/, '');
+
+            // เพิ่ม prefix image/ ถ้ายังไม่มี
+            const finalPath = sanitizedPath.startsWith('image/') ? sanitizedPath : `image/${sanitizedPath}`;
+
+            const exists = await ImageModel.imageExists(finalPath);
             if (!exists) {
                 return res.status(404).json({ success: false, message: 'Image not found' });
             }
 
-            const obj = await ImageModel.getImageObject(sanitizedPath);
-            // ContentType may exist in metadata
+            const obj = await ImageModel.getImageObject(finalPath);
             if (obj.ContentType) res.set('Content-Type', obj.ContentType);
-
-            // stream body
+            
             obj.Body.pipe(res);
         } catch (error) {
             console.error('Error retrieving image:', error);
@@ -38,17 +37,17 @@ class ImageController {
         }
     }
 
-    /**
-     * List all images in a directory
-     * @param {object} req - Express request object
-     * @param {object} res - Express response object
-     */
     async listImages(req, res) {
         try {
             const dirPath = req.query.directory || '';
-            const sanitizedDir = path.normalize(dirPath).replace(/^(\.\.(\/|\\|$))+/, '').replace(/^[/\\]+/, '');
+            const sanitizedDir = path.normalize(dirPath)
+                .replace(/^(\.\.(\/|\\|$))+/, '')
+                .replace(/^[/\\]+/, '');
 
-            const images = await ImageModel.listImages(sanitizedDir ? `${sanitizedDir}/` : '');
+            // เพิ่ม prefix image/
+            const prefix = sanitizedDir ? `image/${sanitizedDir}/` : 'image/';
+            
+            const images = await ImageModel.listImages(prefix);
             return res.status(200).json({
                 success: true,
                 directory: sanitizedDir,

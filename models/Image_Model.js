@@ -19,10 +19,10 @@ class ImageModel {
         return s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
     }
 
-    async listImages(prefix = '') {
+    async listImages(prefix = 'image/') {
         const res = await s3.send(new ListObjectsV2Command({
             Bucket: bucket,
-            Prefix: prefix ? `${prefix.replace(/^\/+/, '')}` : undefined
+            Prefix: prefix
         }));
         const items = res.Contents?.map(o => o.Key).filter(Boolean) || [];
         return items;

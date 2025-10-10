@@ -4,7 +4,7 @@ const path = require('path');
 const { s3, bucket } = require('../config/s3');
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
 
-const handleUpload = upload.single('image'); // Middleware to handle a single image upload
+const handleUpload = upload.single('image');
 
 const MaintenanceController = {
     getAllMaintenances: (req, res) => {
@@ -55,17 +55,21 @@ const MaintenanceController = {
                 // ถ้ามีไฟล์ ให้อัปโหลดขึ้น S3
                 if (req.file) {
                     const ext = path.extname(req.file.originalname) || '.jpg';
-                    const key = `maintenance/maintenance-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+                    // สร้าง key โดยใช้ path: image/maintenance/
+                    const key = `image/maintenance/${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
 
                     await s3.send(new PutObjectCommand({
                         Bucket: bucket,
                         Key: key,
                         Body: req.file.buffer,
-                        ContentType: req.file.mimetype
+                        ContentType: req.file.mimetype,
+                        // เพิ่ม ACL เพื่อให้สามารถเข้าถึงได้แบบ public
+                        ACL: 'public-read'
                     }));
 
-                    // เก็บ key ของไฟล์ใน S3 (ไม่ต้องเป็น URL)
-                    maintenanceData.image = key;
+                    // สร้าง URL แบบเต็มสำหรับ S3
+                    maintenanceData.image = `https://${bucket}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${key}`;
+                    console.log('Uploaded image to S3:', maintenanceData.image);
                 }
 
                 // ค่าเริ่มต้น
@@ -79,7 +83,7 @@ const MaintenanceController = {
                             details: dbErr.message
                         });
                     }
-                    // Broadcast, etc. ถ้ามี io
+                    
                     const io = req.app.get('io');
                     io?.emit('maintenances:changed', { action: 'create', id: result.request_id });
 

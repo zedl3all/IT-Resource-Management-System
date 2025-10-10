@@ -42,10 +42,12 @@
 
 ### 🔧 Maintenance Management (จัดการการแจ้งซ่อม)
 - ✅ แจ้งซ่อมพร้อมอัพโหลดรูปภาพ (รองรับหลายรูป)
+- ✅ เก็บรูปภาพบน AWS S3 Cloud Storage
 - ✅ มอบหมายงานให้เจ้าหน้าที่
 - ✅ ติดตามสถานะ: รอดำเนินการ → กำลังซ่อม → เสร็จสิ้น
 - ✅ ดูประวัติการแจ้งซ่อมทั้งหมด
 - ✅ ระบบแสดงรูปภาพแบบ Image Viewer
+- ✅ Public URL สำหรับเข้าถึงรูปภาพ
 
 ### 🔐 Security & Authentication
 - ✅ JWT Token Authentication
@@ -75,6 +77,7 @@
 - **JWT** - Authentication
 - **Multer** - File Upload Handling
 - **bcrypt** - Password Hashing
+- **AWS S3** - Cloud Storage for Images
 
 ### Frontend
 - **EJS** - Templating Engine
@@ -143,9 +146,23 @@ JWT_EXPIRES_IN=24h
 # Server Configuration
 PORT=3000
 NODE_ENV=development
+
+# AWS S3 Configuration (สำหรับเก็บรูปภาพ)
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+S3_BUCKET_NAME=itrms-uploads-bucket-2025
 ```
 
-#### 5. Start Server
+**หมายเหตุ:** สำหรับการตั้งค่า AWS S3 โปรดดูรายละเอียดใน [AWS S3 Setup Guide](docs/AWS_S3_SETUP.md)
+
+#### 5. Test S3 Connection (Optional)
+ทดสอบการเชื่อมต่อกับ AWS S3:
+```powershell
+node test-s3-connection.js
+```
+
+#### 6. Start Server
 ```powershell
 # Development mode with auto-reload
 npm run dev
