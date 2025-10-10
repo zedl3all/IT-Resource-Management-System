@@ -1,9 +1,12 @@
-# 🖥️ IT Resource Management System ⚠️!!Broken!!⚠️
+# 🖥️ IT Resource Management System
 
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.x-000000?logo=express&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?logo=mysql&logoColor=white)
 ![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-010101?logo=socket.io&logoColor=white)
+![AWS S3](https://img.shields.io/badge/AWS_S3-Cloud_Storage-FF9900?logo=amazon-aws&logoColor=white)
+![AWS EC2](https://img.shields.io/badge/AWS_EC2-Cloud_Compute-FF9900?logo=amazon-aws&logoColor=white)
+![AWS RDS](https://img.shields.io/badge/AWS_RDS-Database-FF9900?logo=amazon-aws&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 ## 📋 Overview
@@ -43,6 +46,7 @@
 ### 🔧 Maintenance Management (จัดการการแจ้งซ่อม)
 - ✅ แจ้งซ่อมพร้อมอัพโหลดรูปภาพ (รองรับหลายรูป)
 - ✅ เก็บรูปภาพบน AWS S3 Cloud Storage
+- ✅ เข้าถึงรูปภาพผ่าน AWS S3
 - ✅ มอบหมายงานให้เจ้าหน้าที่
 - ✅ ติดตามสถานะ: รอดำเนินการ → กำลังซ่อม → เสร็จสิ้น
 - ✅ ดูประวัติการแจ้งซ่อมทั้งหมด
@@ -97,6 +101,7 @@
 - **Node.js** 18 or higher ([Download](https://nodejs.org/))
 - **MySQL** 8.x or higher ([Download](https://dev.mysql.com/downloads/))
 - **Git** (optional) ([Download](https://git-scm.com/))
+- **AWS Account** สำหรับใช้งาน S3 storage
 
 ### Installation
 
@@ -148,10 +153,11 @@ PORT=3000
 NODE_ENV=development
 
 # AWS S3 Configuration (สำหรับเก็บรูปภาพ)
-AWS_REGION=us-east-1
+AWS_REGION=your_bucket_region
 AWS_ACCESS_KEY_ID=your_access_key_id
 AWS_SECRET_ACCESS_KEY=your_secret_access_key
-S3_BUCKET_NAME=itrms-uploads-bucket-2025
+AWS_SESSION_TOKEN=your_session_token_if_needed
+S3_BUCKET_NAME=your_bucket_name
 ```
 
 **หมายเหตุ:** สำหรับการตั้งค่า AWS S3 โปรดดูรายละเอียดใน [AWS S3 Setup Guide](docs/AWS_S3_SETUP.md)
