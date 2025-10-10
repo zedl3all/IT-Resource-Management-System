@@ -1,6 +1,8 @@
 const Maintenance = require('../models/Maintenance_Model');
 const upload = require('../middleware/Upload_Middleware');
 const path = require('path');
+const { s3, bucket } = require('../config/s3');
+const { PutObjectCommand } = require('@aws-sdk/client-s3');
 
 const handleUpload = upload.single('image'); // Middleware to handle a single image upload
 
@@ -39,46 +41,61 @@ const MaintenanceController = {
         });
     },
     createMaintenance: (req, res) => {
-        handleUpload(req, res, function(err) {
+        handleUpload(req, res, async function(err) {
             if (err) {
                 return res.status(400).json({
                     error: 'File upload error',
                     details: err.message
                 });
             }
-            
-            // Get the maintenance data from the request body
-            const maintenanceData = req.body;
-            
-            // Add image path if a file was uploaded
-            if (req.file) {
-                // Update the path to match the new location
-                maintenanceData.image = '/Images/maintenance/' + path.basename(req.file.path);
-            }
-            
-            // Set default values if not provided
-            maintenanceData.DT_report = maintenanceData.DT_report || new Date().toISOString();
-            maintenanceData.staff_id = maintenanceData.staff_id || null;
-            maintenanceData.status = maintenanceData.status || 0; // Default to pending
-            
-            // Include equipment information in problem description if available
-            if (maintenanceData.equipment) {
-                maintenanceData.problem_description = `อุปกรณ์: ${maintenanceData.equipment}\n${maintenanceData.problem_description}`;
-            }
-            
-            // Create the maintenance record
-            Maintenance.create(maintenanceData, (err, maintenanceId) => {
-                if (err) return res.status(500).json({
-                    error: 'Internal server error',
-                    details: err.message
+
+            try {
+                const maintenanceData = req.body;
+
+                // ถ้ามีไฟล์ ให้อัปโหลดขึ้น S3
+                if (req.file) {
+                    const ext = path.extname(req.file.originalname) || '.jpg';
+                    const key = `maintenance/maintenance-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+
+                    await s3.send(new PutObjectCommand({
+                        Bucket: bucket,
+                        Key: key,
+                        Body: req.file.buffer,
+                        ContentType: req.file.mimetype
+                    }));
+
+                    // เก็บ key ของไฟล์ใน S3 (ไม่ต้องเป็น URL)
+                    maintenanceData.image = key;
+                }
+
+                // ค่าเริ่มต้น
+                maintenanceData.DT_report = maintenanceData.DT_report || new Date().toISOString();
+                maintenanceData.status = maintenanceData.status ?? 0;
+
+                Maintenance.create(maintenanceData, (dbErr, result) => {
+                    if (dbErr) {
+                        return res.status(500).json({
+                            error: 'Internal server error',
+                            details: dbErr.message
+                        });
+                    }
+                    // Broadcast, etc. ถ้ามี io
+                    const io = req.app.get('io');
+                    io?.emit('maintenances:changed', { action: 'create', id: result.request_id });
+
+                    return res.status(201).json({
+                        message: 'Maintenance request created successfully',
+                        request_id: result.request_id,
+                        image: maintenanceData.image || null
+                    });
                 });
-                
-                // Emit event to clients
-                const io = req.app.get('io');
-                if (io) io.emit('maintenances:changed', { action: 'create' });
-                
-                res.status(201).json({ maintenanceId });
-            });
+            } catch (e) {
+                console.error('S3 upload error:', e);
+                return res.status(500).json({
+                    error: 'Internal server error',
+                    details: e.message
+                });
+            }
         });
     },
     updateMaintenance: (req, res) => {
@@ -133,6 +150,16 @@ const MaintenanceController = {
             });
         });
     },
+    getMaintenancesByUserId: (req, res) => {
+        const userId = req.params.userId;
+        Maintenance.getByUserId(userId, (err, maintenances) => {
+            if (err) return res.status(500).json({
+                error: 'Internal server error',
+                details: err.message
+            });
+            res.status(200).json({ maintenances });
+        });
+    },
     updateStaffAndStatus: (req, res) => {
         const MaintenanceId = req.params.id;
         const { staff_id, status } = req.body;
@@ -150,17 +177,7 @@ const MaintenanceController = {
                 details: results
             });
         });
-    },
-    getMaintenancesByUserId: (req, res) => {
-        const userId = req.params.userId;
-        Maintenance.getByUserId(userId, (err, maintenances) => {
-            if (err) return res.status(500).json({
-                error: 'Internal server error',
-                details: err.message
-            });
-            res.status(200).json({ maintenances });
-        });
     }
-}
+};
 
 module.exports = MaintenanceController;

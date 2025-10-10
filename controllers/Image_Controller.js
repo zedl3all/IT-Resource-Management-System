@@ -10,37 +10,31 @@ class ImageController {
      * @param {object} req - Express request object
      * @param {object} res - Express response object
      */
-    getImage(req, res) {
+    async getImage(req, res) {
         try {
             const imagePath = req.query.path;
             if (!imagePath) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Missing query parameter: path'
-                });
+                return res.status(400).json({ success: false, message: 'Missing query parameter: path' });
             }
 
-            // Sanitize and validate path to prevent directory traversal
-            const sanitizedPath = path.normalize(imagePath).replace(/^(\.\.(\/|\\|$))+/, '');
+            // sanitize
+            const sanitizedPath = path.normalize(imagePath).replace(/^(\.\.(\/|\\|$))+/, '').replace(/^[/\\]+/, '');
 
-            // Get full path to image
-            const fullPath = ImageModel.getImagePath(sanitizedPath);
-
-            if (!fullPath) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Image not found'
-                });
+            // check and stream
+            const exists = await ImageModel.imageExists(sanitizedPath);
+            if (!exists) {
+                return res.status(404).json({ success: false, message: 'Image not found' });
             }
 
-            // Send the image
-            return res.sendFile(fullPath);
+            const obj = await ImageModel.getImageObject(sanitizedPath);
+            // ContentType may exist in metadata
+            if (obj.ContentType) res.set('Content-Type', obj.ContentType);
+
+            // stream body
+            obj.Body.pipe(res);
         } catch (error) {
             console.error('Error retrieving image:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Error retrieving image'
-            });
+            return res.status(500).json({ success: false, message: 'Error retrieving image' });
         }
     }
 
@@ -49,15 +43,12 @@ class ImageController {
      * @param {object} req - Express request object
      * @param {object} res - Express response object
      */
-    listImages(req, res) {
+    async listImages(req, res) {
         try {
             const dirPath = req.query.directory || '';
+            const sanitizedDir = path.normalize(dirPath).replace(/^(\.\.(\/|\\|$))+/, '').replace(/^[/\\]+/, '');
 
-            // Sanitize and validate path to prevent directory traversal
-            const sanitizedDir = path.normalize(dirPath).replace(/^(\.\.(\/|\\|$))+/, '');
-
-            const images = ImageModel.listImages(sanitizedDir);
-
+            const images = await ImageModel.listImages(sanitizedDir ? `${sanitizedDir}/` : '');
             return res.status(200).json({
                 success: true,
                 directory: sanitizedDir,
@@ -66,10 +57,7 @@ class ImageController {
             });
         } catch (error) {
             console.error('Error listing images:', error);
-            return res.status(500).json({
-                success: false,
-                message: 'Error listing images'
-            });
+            return res.status(500).json({ success: false, message: 'Error listing images' });
         }
     }
 }

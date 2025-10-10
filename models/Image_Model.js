@@ -1,55 +1,31 @@
 const fs = require('fs');
 const path = require('path');
+const { s3, bucket } = require('../config/s3');
+const { GetObjectCommand, HeadObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
 
 class ImageModel {
-    constructor() {
-        // Base directory for all images
-        this.baseDir = path.join(__dirname, '..', 'Images');
-    }
+    constructor() {}
 
-    /**
-     * Check if an image exists at the specified path
-     * @param {string} imagePath - Relative path to the image from Images directory
-     * @returns {boolean} - Whether the image exists
-     */
-    imageExists(imagePath) {
-        const fullPath = path.join(this.baseDir, imagePath);
+    async imageExists(key) {
         try {
-            const stat = fs.statSync(fullPath);
-            return stat.isFile();
+            await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+            return true;
         } catch {
             return false;
         }
     }
 
-    /**
-     * Get the full path to an image
-     * @param {string} imagePath - Relative path to the image from Images directory
-     * @returns {string|null} - Full path to the image or null if not found
-     */
-    getImagePath(imagePath) {
-        const fullPath = path.join(this.baseDir, imagePath);
-        return this.imageExists(imagePath) ? fullPath : null;
+    async getImageObject(key) {
+        return s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
     }
 
-    /**
-     * List all images in a directory
-     * @param {string} dirPath - Relative directory path from Images directory
-     * @returns {Array} - Array of image paths in the directory
-     */
-    listImages(dirPath = '') {
-        const fullPath = path.join(this.baseDir, dirPath);
-        try {
-            if (!fs.existsSync(fullPath)) return [];
-            const files = fs.readdirSync(fullPath, { withFileTypes: true });
-            const exts = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
-            return files
-                .filter(d => d.isFile() && exts.test(d.name))
-                .map(d => path.join(dirPath, d.name).replace(/\\/g, '/'));
-        } catch (error) {
-            console.error('Error listing images:', error);
-            return [];
-        }
+    async listImages(prefix = '') {
+        const res = await s3.send(new ListObjectsV2Command({
+            Bucket: bucket,
+            Prefix: prefix ? `${prefix.replace(/^\/+/, '')}` : undefined
+        }));
+        const items = res.Contents?.map(o => o.Key).filter(Boolean) || [];
+        return items;
     }
 }
 
