@@ -15,12 +15,12 @@ jest.mock('../../models/Room_Model', () => ({
 }));
 
 // IMPORTANT: Use the exact filename casing used in controller requires (equipment_Model, maintenance_Model)
-jest.mock('../../models/equipment_Model', () => ({
+jest.mock('../../models/Equipment_Model', () => ({
     getAll: jest.fn(),
     create: jest.fn(),
 }));
 
-jest.mock('../../models/maintenance_Model', () => ({
+jest.mock('../../models/Maintenance_Model', () => ({
     getAll: jest.fn(),
 }));
 
@@ -33,8 +33,8 @@ const MaintenanceController = require('../../controllers/Maintenance_Controller'
 // --- Extract mocked models to control behavior --- //
 const UserModel = require('../../models/User_Model');
 const RoomModel = require('../../models/Room_Model');
-const EquipmentModel = require('../../models/equipment_Model');
-const MaintenanceModel = require('../../models/maintenance_Model');
+const EquipmentModel = require('../../models/Equipment_Model');
+const MaintenanceModel = require('../../models/Maintenance_Model');
 
 // Helper to build mock res
 function buildRes() {
