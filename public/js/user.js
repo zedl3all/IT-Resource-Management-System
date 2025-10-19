@@ -517,7 +517,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(result => {
                 console.log(result);
                 console.log(result.message);
-                if (result.bookingId.status == "success" || result.success || result.message == "Loan created successfully") {
+                if (result.success) {
                     showNotification(`${actionName}สำเร็จ!`);
                     if (modal) modal.style.display = "none";
                     if (callback) callback();

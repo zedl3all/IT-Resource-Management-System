@@ -255,7 +255,7 @@ const Equipment = {
                             borrowDT, 
                             returnDT, 
                             data.purpose || 'ไม่ระบุวัตถุประสงค์',
-                            0  // status 0 = ยืมอยู่
+                            1  // แก้: 1 = ยืมอยู่ (active), 0 = คืนแล้ว (returned)
                         ];
 
                         db.query(query, values, (err, insertResults) => {
