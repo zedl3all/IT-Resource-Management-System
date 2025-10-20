@@ -39,6 +39,13 @@ const User = {
             callback(null, results);
         });
     },
+    updateRole: (id, role, callback) => {
+        const query = 'UPDATE users SET role = ? WHERE user_id = ? AND is_deleted = 0';
+        db.query(query, [role, id], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
     soft_delete: (id, callback) => {
         const query = 'UPDATE users SET is_deleted = 1 WHERE user_id = ?'
         db.query(query, [id], (err, results) => {

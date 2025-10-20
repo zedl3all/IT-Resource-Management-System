@@ -10,7 +10,7 @@ const authenticateToken = (req, res, next) => {
     // รับ token จาก cookie เท่านั้น
     const token = req.cookies?.token;
     
-    console.log('Cookie Token:', token);
+    // console.log('Cookie Token:', token);
     
     // Check if token is present
     if (!token) {
@@ -31,7 +31,7 @@ const authenticateToken = (req, res, next) => {
         }
         
         req.user = decoded;
-        console.log('Authenticated user:', decoded);
+        // console.log('Authenticated user:', decoded);
         next();
     });
 };

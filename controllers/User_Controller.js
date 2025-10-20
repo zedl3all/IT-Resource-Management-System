@@ -4,10 +4,11 @@ const UserController = {
     getAllUsers: (req, res) => {
         User.getAll((err, users) => {
             if (err) return res.status(500).json({
+                success: false,
                 error: 'Internal server error',
                 details: err.message
             });
-            res.status(200).json({ users });
+            res.status(200).json({ success: true, users });
         });
     },
     getUserById: (req, res) => {
@@ -56,6 +57,17 @@ const UserController = {
                 message: 'User updated successfully',
                 details: result
             });
+        });
+    },
+    updateUserRole: (req, res) => {
+        const userId = req.params.id;
+        const { role } = req.body;
+        if (!role) {
+            return res.status(400).json({ success: false, message: 'Role is required' });
+        }
+        User.updateRole(userId, role, (err, result) => {
+            if (err) return res.status(500).json({ success: false, message: 'Internal server error', details: err.message });
+            return res.status(200).json({ success: true, message: 'Role updated successfully', details: result });
         });
     },
     softDeleteUser: (req, res) => {

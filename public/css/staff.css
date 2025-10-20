@@ -19,6 +19,16 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.logo {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+.logo:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
 body {
     background-color: #f5f7fa;
     color: var(--text-color);

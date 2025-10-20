@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show user/staff nav links if logged in
     const userNav = document.getElementById('user-nav');
     const staffNav = document.getElementById('staff-nav');
+    const adminNav = document.getElementById('admin-nav');
 
     // Simulate user role (for demonstration purposes)
     const userRole = localStorage.getItem('userRole');
@@ -65,5 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (userRole === 'admin') {
         userNav.style.display = 'block';
         staffNav.style.display = 'block';
+        adminNav.style.display = 'block';
     }
 });

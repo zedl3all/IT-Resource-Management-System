@@ -8,6 +8,10 @@ const WebController = {
     },
     getUserView: (req, res) => {
         res.render('user');
+    },
+    getAdminView: (req, res) => {
+        // Render admin dashboard for managing user roles
+        res.render('admin');
     }
 };
 

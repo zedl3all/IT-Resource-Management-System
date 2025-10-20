@@ -56,8 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("เข้าสู่ระบบสำเร็จ");
 
                 // Role-based redirection
-                if (result.user.role === 'staff' || result.user.role === 'admin') {
+                if (result.user.role === 'staff') {
                     window.location.href = "/staff"; // Redirect staff to staff dashboard
+                } else if (result.user.role === 'admin') {
+                    window.location.href = "/admin"; // Redirect admin to admin dashboard
                 } else {
                     window.location.href = "/user"; // Redirect regular users to user dashboard
                 }
