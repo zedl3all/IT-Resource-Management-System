@@ -1328,6 +1328,27 @@ document.addEventListener('DOMContentLoaded', function () {
     function initialize() {
         loadRooms(); // Load initial data
         initializeUserName(); // Set user name
+        SetupToastr();
+    }
+
+    function SetupToastr(){
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
     }
     
     // Socket.IO client
@@ -1353,6 +1374,7 @@ document.addEventListener('DOMContentLoaded', function () {
         socket.on('maintenances:changed', () => {
             const active = document.querySelector('.section.active');
             if (!active || active.id === 'repairs') loadMaintenance();
+            toastr.info('มีการอัปเดตรายการซ่อมบำรุงใหม่');
         });
         // --- listen for create/update ---
     }
