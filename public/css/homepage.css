@@ -677,3 +677,45 @@ img {
 .staff-nav a:before {
     content: "\f085"; /* cog icon */
 }
+
+.admin-nav {
+    display: none;
+    margin: 0 10px;
+    position: relative;
+}
+
+.admin-nav a {
+    display: flex;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-nav a:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.admin-nav a:before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 8px;
+    content: "\f013"; /* gear icon */
+}
+
+.logo {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+.logo:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}

@@ -6,12 +6,13 @@
     <title>Staff Dashboard - IT Resource Management System</title>
     <link rel="stylesheet" href="/css/staff.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 <body>
     <div class="dashboard">
         <!-- Sidebar -->
         <div class="sidebar">
-            <div class="logo">
+            <div class="logo" onclick="location.href='/'">
                 <i class="fas fa-laptop-code"></i>
                 <span>IT Resources</span>
             </div>
@@ -554,6 +555,8 @@
 
     <!-- Scripts -->
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="/js/staff.js"></script>
 </body>
 </html>

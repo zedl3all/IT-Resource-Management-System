@@ -134,8 +134,9 @@ const RoomController = {
     CreateBooking: (req, res) => {
         const bookingData = req.body;
         console.log(bookingData);
-        Room.createBooking(bookingData, (err, bookingId) => {
+        Room.createBooking(bookingData, (err, result) => {
             if (err) return res.status(500).json({
+                success: false,
                 error: 'Internal server error',
                 details: err.message
             });
@@ -143,7 +144,13 @@ const RoomController = {
             const io = req.app.get('io');
             if (io) io.emit('rooms:changed', { action: 'create' });
             // --- emit to clients ---
-            res.status(201).json({ bookingId });
+            // ส่งผลลัพธ์แบบ success ที่ระดับบนสุด
+            res.status(201).json({
+                success: result?.status === 'success',
+                bookingId: result?.booking_id,
+                message: 'Booking created successfully',
+                details: result
+            });
         });
     },
     CancelBooking: (req, res) => {

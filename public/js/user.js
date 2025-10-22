@@ -147,6 +147,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 handleSearch();
             }
         });
+
+        // Room filters (scoped under #rooms เพื่อหลีกเลี่ยงปัญหา ID ซ้ำ)
+        document.querySelector('#rooms #room-capacity-filter')?.addEventListener('change', loadAvailableRooms);
+        document.querySelector('#rooms #equipment-status-filter')?.addEventListener('change', loadAvailableRooms);
+
+        // Equipment filter (scoped under #equipment)
+        document.querySelector('#equipment #equipment-status-filter')?.addEventListener('change', loadAvailableEquipment);
     }
 
     function setupModalEvents() {
@@ -517,7 +524,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(result => {
                 console.log(result);
                 console.log(result.message);
-                if (result.bookingId.status == "success" || result.success || result.message == "Loan created successfully") {
+                if (result.success) {
                     showNotification(`${actionName}สำเร็จ!`);
                     if (modal) modal.style.display = "none";
                     if (callback) callback();
@@ -708,11 +715,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 const tbody = document.querySelector("#available-rooms-table tbody");
                 tbody.innerHTML = "";
 
-                data.rooms.forEach(room => {
-                    const statusInfo = getRoomStatusInfo(room.status);
-                    const row = createRoomRow(room, statusInfo);
-                    tbody.appendChild(row);
-                });
+                const capacityFilter = document.querySelector('#rooms #room-capacity-filter')?.value || '';
+                const statusFilter = document.querySelector('#rooms #equipment-status-filter')?.value || '';
+
+                const rooms = (data && data.rooms) ? data.rooms : [];
+
+                const matchCapacity = (room) => {
+                    if (!capacityFilter) return true;
+                    const cap = parseInt(room.capacity || 0, 10);
+                    if (capacityFilter === '1-10') return cap >= 1 && cap <= 10;
+                    if (capacityFilter === '11-20') return cap >= 11 && cap <= 20;
+                    if (capacityFilter === '21-50') return cap >= 21 && cap <= 50;
+                    if (capacityFilter === '50+') return cap >= 50;
+                    return true;
+                };
+
+                const mapStatus = (val) => {
+                    if (val === 'available') return 1;
+                    if (val === 'in_use') return 0;
+                    if (val === 'under_maintenance') return -1;
+                    return null;
+                };
+
+                const desiredStatus = mapStatus(statusFilter);
+                const matchStatus = (room) => desiredStatus === null ? true : parseInt(room.status) === desiredStatus;
+
+                rooms
+                    .filter(room => matchCapacity(room) && matchStatus(room))
+                    .forEach(room => {
+                        const statusInfo = getRoomStatusInfo(room.status);
+                        const row = createRoomRow(room, statusInfo);
+                        tbody.appendChild(row);
+                    });
             })
             .catch(error => handleApiError(error, "Error loading rooms"));
     }
@@ -764,11 +798,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 const tbody = document.querySelector("#available-equipment-table tbody");
                 tbody.innerHTML = "";
 
-                data.equipments.forEach(item => {
-                    const statusInfo = getEquipmentStatusInfo(item.status);
-                    const row = createEquipmentRow(item, statusInfo);
-                    tbody.appendChild(row);
-                });
+                const statusFilter = document.querySelector('#equipment #equipment-status-filter')?.value || '';
+                const mapStatus = (val) => {
+                    if (val === 'available') return 1;
+                    if (val === 'in_use') return 0;
+                    if (val === 'under_maintenance') return -1;
+                    return null;
+                };
+                const desiredStatus = mapStatus(statusFilter);
+
+                const items = (data && data.equipments) ? data.equipments : [];
+                items
+                    .filter(item => desiredStatus === null ? true : parseInt(item.status) === desiredStatus)
+                    .forEach(item => {
+                        const statusInfo = getEquipmentStatusInfo(item.status);
+                        const row = createEquipmentRow(item, statusInfo);
+                        tbody.appendChild(row);
+                    });
             })
             .catch(error => handleApiError(error, "Error loading equipment"));
     }

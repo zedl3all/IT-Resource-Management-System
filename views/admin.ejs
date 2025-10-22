@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Manage Roles</title>
+  <link rel="stylesheet" href="/css/staff.css" />
+  <link rel="stylesheet" href="/css/user.css" />
+  <link rel="stylesheet" href="/css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo" onclick="location.href='/'">
+        <i class="fas fa-user-shield"></i>
+        <span>Admin</span>
+      </div>
+      <div class="menu">
+        <a href="#" class="menu-item active" data-section="users">
+          <i class="fas fa-users-cog"></i>
+          <span>จัดการสิทธิ์ผู้ใช้</span>
+        </a>
+        <a id="logout-btn" class="menu-item logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>ออกจากระบบ</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <header class="header">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input id="search-input" type="text" placeholder="ค้นหาชื่อผู้ใช้ อีเมล หรือบทบาท..." />
+        </div>
+        <div class="user-info">
+          <div class="user">
+            <i class="fas fa-user-circle"></i>
+            <span id="admin-name">ผู้ดูแลระบบ</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Users Section -->
+      <section id="users" class="section active">
+        <div class="section-header">
+          <h1>จัดการบทบาทผู้ใช้</h1>
+          <div class="filter-controls">
+            <select id="role-filter" class="date-filter">
+              <option value="">บทบาททั้งหมด</option>
+              <option value="admin">admin</option>
+              <option value="staff">staff</option>
+              <option value="user">user</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="users-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>ชื่อ-สกุล</th>
+                <th>ชื่อผู้ใช้</th>
+                <th>อีเมล</th>
+                <th>บทบาท</th>
+                <th>การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Filled by admin.js -->
+            </tbody>
+          </table>
+          <div class="empty-state" id="empty-state" style="display:none">
+            <i class="fas fa-user-slash"></i>
+            <h3>ไม่พบผู้ใช้</h3>
+            <p>ลองเปลี่ยนคำค้นหาหรือฟิลเตอร์</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

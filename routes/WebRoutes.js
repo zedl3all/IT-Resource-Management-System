@@ -22,4 +22,7 @@ router.get('/staff', authenticateToken, checkRole(['admin', 'staff']), WebContro
 
 router.get('/user', authenticateToken, WebController.getUserView); //?use
 
+// Admin dashboard for managing user roles
+router.get('/admin', authenticateToken, checkRole('admin'), WebController.getAdminView); //?use
+
 module.exports = router;

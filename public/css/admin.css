@@ -1,0 +1,21 @@
+/* Make the save button larger on admin page */
+.btn-save-role {
+  padding: 20px 50px; /* bigger click target */
+  font-size: 1rem;   /* slightly larger text */
+  border-radius: 10px;
+}
+
+/* If needed, ensure icon has some spacing */
+.btn-save-role i {
+  margin-right: 6px;
+}
+
+.logo {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+.logo:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}

@@ -131,7 +131,7 @@ const EquipmentController = {
             const io = req.app.get('io');
             if (io) io.emit('loans:changed', { action: 'create' });
             // --- emit to clients ---
-            res.status(201).json({ message: 'Loan created successfully', loanId: result.insertId });
+            res.status(201).json({ success: 'Loan created successfully', loanId: result.insertId });
         });
     },
     returnLoan: (req, res) => {
