@@ -63,14 +63,6 @@
             <section id="bookings" class="section active">
                 <div class="section-header">
                     <h1>การจองของฉัน</h1>
-                    <div class="filter-controls">
-                        <select id="booking-filter">
-                            <option value="all">ทั้งหมด</option>
-                            <option value="active">ใช้งานอยู่</option>
-                            <option value="upcoming">กำลังจะมาถึง</option>
-                            <option value="completed">เสร็จสิ้นแล้ว</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div class="cards-container">
@@ -123,13 +115,18 @@
                 <div class="section-header">
                     <h1>จองห้อง</h1>
                     <div class="filter-controls">
-                        <input type="date" id="room-date-filter" class="date-filter">
                         <select id="room-capacity-filter">
                             <option value="">ความจุทั้งหมด</option>
                             <option value="1-10">1-10 คน</option>
                             <option value="11-20">11-20 คน</option>
                             <option value="21-50">21-50 คน</option>
                             <option value="50+">มากกว่า 50 คน</option>
+                        </select>
+                        <select id="equipment-status-filter">
+                            <option value="">สถานะทั้งหมด</option>
+                            <option value="available">ว่าง</option>
+                            <option value="in_use">กำลังใช้งาน</option>
+                            <option value="under_maintenance">ซ่อมบำรุง</option>
                         </select>
                     </div>
                 </div>
@@ -158,13 +155,11 @@
                 <div class="section-header">
                     <h1>จองอุปกรณ์</h1>
                     <div class="filter-controls">
-                        <select id="equipment-type-filter">
-                            <option value="">ประเภททั้งหมด</option>
-                            <!-- Equipment types will be loaded here -->
-                        </select>
                         <select id="equipment-status-filter">
                             <option value="">สถานะทั้งหมด</option>
                             <option value="available">ว่าง</option>
+                            <option value="in_use">กำลังใช้งาน</option>
+                            <option value="under_maintenance">ซ่อมบำรุง</option>
                         </select>
                     </div>
                 </div>
